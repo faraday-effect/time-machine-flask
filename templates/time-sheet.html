@@ -11,17 +11,23 @@
             <th colspan="2">Stop</th>
             <th>Hours</th>
             <th>Description</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
         {% for entry in entries %}
             <tr>
-            <td>{{ entry.start_date }}</td>
-            <td>{{ entry.start_time }}</td>
-            <td>{{ entry.end_date }}</td>
-            <td>{{ entry.end_time }}</td>
-            <td>{{ 0 }}</td>
-            <td>{{ entry.description }}</td>
+                <td>{{ entry.start_date }}</td>
+                <td>{{ entry.start_time }}</td>
+                <td>{{ entry.end_date }}</td>
+                <td>{{ entry.end_time }}</td>
+                <td>{{ 0 }}</td>
+                <td>{{ entry.description }}</td>
+                <td>
+                    <button class="btn btn-outline-primary btn-sm">Edit</button>
+                    <button class="btn btn-outline-secondary btn-sm">Copy</button>
+                    <button class="btn btn-outline-danger btn-sm">Delete</button>
+                </td>
             </tr>
         {% else %}
             <tr>
