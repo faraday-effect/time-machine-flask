@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-center">
+                <h1>Sign In to Time Machine</h1>
+            <form method="POST">
+            {{ form.csrf_token }}
+            <div class="form-row">
+                <div class="form-group col-2">
+                    {{ form.email.label }}
+                    {{ form.email(class_="form-control") }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-2">
+                    {{ form.password.label }}
+                    {{ form.password(class_="form-control") }}
+                </div>
+            </div>
+            {{ form.submit(class_="btn btn-primary") }}
+        </form>
+    </div>
+{% endblock %}

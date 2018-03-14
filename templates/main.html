@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div class="container">
+        <header>
+            <h1>
+                <a href="{{ url_for('index') }}">
+                    Time Machine
+                </a>
+            </h1>
+            <nav class="navbar navbar-expand-md navbar-light bg-light">
+                <a class="navbar-brand" href="{{ url_for('index') }}">Time Machine</a>
+                <ul class="nav">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('time_sheet') }}">Time Sheet</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('time_entry') }}">Time Entry</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="container">
+            {% block content %}
+                DEFAULT CONTENT
+            {% endblock %}
+        </div>
+
+        <footer>
+            <div class="row">
+                <div class="col">
+                    &copy; Copyright 2018 by Tom Nurkkala
+                </div>
+                <div class="col">
+                    <h4>Links</h4>
+                    <ul class="list-unstyled">
+                        <li><a class="text-muted" href="#">Source</a></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+{% endblock %}

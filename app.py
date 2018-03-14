@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, StringField
+from wtforms import SubmitField, StringField, PasswordField
 from wtforms.fields.html5 import DateField, TimeField
 from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRequired, EqualTo
 
@@ -23,6 +23,19 @@ def teardown_request(exception):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+class SignInForm(FlaskForm):
+    email = StringField('Email', validators=[Email()])
+    password = PasswordField('Password')
+    submit = SubmitField('Sign In')
+
+
+
+@app.route('/sign-in')
+def sign_in():
+    sign_in_form = SignInForm()
+    return render_template('sign-in.html', form=sign_in_form)
 
 
 @app.route('/time-sheet')
