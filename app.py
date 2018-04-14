@@ -1,7 +1,7 @@
 from urllib.parse import urlparse, urljoin
 
 from flask import Flask, render_template, flash, redirect, url_for, abort, request
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, StringField, PasswordField, HiddenField
 from wtforms.fields.html5 import DateField, TimeField
@@ -39,7 +39,10 @@ def load_user(email):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if current_user.is_authenticated:
+        return redirect(url_for('time_sheet'))
+    else:
+        return redirect(url_for('login'))
 
 
 class LoginForm(FlaskForm):
@@ -80,6 +83,12 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/settings')
+@login_required
+def settings():
+    return "ZOWIE"
 
 
 @app.route('/time-sheet')

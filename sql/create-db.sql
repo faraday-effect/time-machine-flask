@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS time;
 DROP TABLE IF EXISTS account_team;
+DROP TABLE IF EXISTS account_role;
 DROP TABLE IF EXISTS account;
+DROP TABLE IF EXISTS role;
 DROP TABLE IF EXISTS team;
 DROP TABLE IF EXISTS sprint;
 DROP TABLE IF EXISTS project;
@@ -99,4 +101,23 @@ CREATE TABLE time
   end_time    TIME         NOT NULL
 );
 
-ALTER SEQUENCE user_id_seq RESTART WITH 101;
+CREATE TABLE role
+(
+  id   SERIAL      NOT NULL
+    CONSTRAINT role_pkey
+    PRIMARY KEY,
+  name VARCHAR(64) NOT NULL
+);
+
+CREATE UNIQUE INDEX role_name_uindex
+  ON role (name);
+
+CREATE TABLE account_role
+(
+  account_id INTEGER NOT NULL
+    CONSTRAINT account_role_account_id_fk
+    REFERENCES account,
+  role_id    INTEGER NOT NULL
+    CONSTRAINT account_role_role_id_fk
+    REFERENCES role
+);

@@ -31,13 +31,19 @@ def create_user(user):
     g.connection.commit()
     return g.cursor.rowcount
 
-def read_user_by_id(user_id):
-    g.cursor.execute('SELECT * FROM account WHERE id = %(user_id)s', {'user_id': user_id})
-    return g.cursor.fetchone()
-
 
 def read_user_by_email(email):
-    g.cursor.execute('SELECT * FROM account WHERE email = %(email)s', {'email': email})
+    query = """
+    SELECT
+      account.id AS account_id,
+      first_name, last_name, email, password_hash,
+      role_id, role.name  AS role_name
+    FROM account
+    INNER JOIN account_role ON account.id = account_role.account_id
+    INNER JOIN role ON account_role.role_id = role.id
+    WHERE email = %(email)s
+    """
+    g.cursor.execute(query, {'email': email})
     return g.cursor.fetchone()
 
 

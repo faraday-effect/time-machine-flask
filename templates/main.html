@@ -8,14 +8,22 @@
                     <img src="{{ url_for('static', filename='persistence-of-memory.jpg') }}"
                          height="50" alt="Dali was weird">
                     Time Machine
-                    </a>
+                </a>
                 <ul class="nav">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('time_sheet') }}">Time Sheet</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('time_entry') }}">Time Entry</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Log Out</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Log In</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Welcome, {{ current_user.first_name }}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ url_for('settings') }}">Settings</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">Log Out</a>
+                            </div>
+                        </li>
                     {% endif %}
                 </ul>
             </nav>
