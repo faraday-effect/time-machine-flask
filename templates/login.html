@@ -1,0 +1,23 @@
+{% extends "main.html" %}
+
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+    <h1>Log In to Time Machine</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-row">
+            <div class="form-group col-4">
+                {{ form.email.label }}
+                {{ form.email(class_="form-control") }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-4">
+                {{ form.password.label }}
+                {{ form.password(class_="form-control") }}
+            </div>
+        </div>
+        {{ form.submit(class_="btn btn-primary") }}
+    </form>
+{% endblock %}

@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS time;
-DROP TABLE IF EXISTS user_team;
-DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS account_team;
+DROP TABLE IF EXISTS account;
 DROP TABLE IF EXISTS team;
 DROP TABLE IF EXISTS sprint;
 DROP TABLE IF EXISTS project;
@@ -55,30 +55,30 @@ CREATE TABLE team
     REFERENCES course
 );
 
-CREATE TABLE "user"
+CREATE TABLE account
 (
-  id         SERIAL       NOT NULL
+  id            SERIAL       NOT NULL
     CONSTRAINT user_pkey
     PRIMARY KEY,
-  first_name VARCHAR(40)  NOT NULL,
-  last_name  VARCHAR(40)  NOT NULL,
-  email      VARCHAR(80)  NOT NULL,
-  password   VARCHAR(255) NOT NULL
+  first_name    VARCHAR(40)  NOT NULL,
+  last_name     VARCHAR(40)  NOT NULL,
+  email         VARCHAR(80)  NOT NULL,
+  password_hash VARCHAR(255) NOT NULL
 );
 
 CREATE UNIQUE INDEX user_email_uindex
-  ON "user" (email);
+  ON account (email);
 
-CREATE TABLE user_team
+CREATE TABLE account_team
 (
-  user_id INTEGER NOT NULL
+  account_id INTEGER NOT NULL
     CONSTRAINT user_team_user_id_fk
-    REFERENCES "user",
-  team_id INTEGER NOT NULL
+    REFERENCES account,
+  team_id    INTEGER NOT NULL
     CONSTRAINT user_team_team_id_fk
     REFERENCES team,
   CONSTRAINT user_team_user_id_team_id_pk
-  PRIMARY KEY (user_id, team_id)
+  PRIMARY KEY (account_id, team_id)
 );
 
 CREATE TABLE time
@@ -92,10 +92,11 @@ CREATE TABLE time
     REFERENCES project,
   user_id     INTEGER      NOT NULL
     CONSTRAINT time_user_id_fk
-    REFERENCES "user",
+    REFERENCES account,
   start_date  DATE         NOT NULL,
   start_time  TIME         NOT NULL,
   end_date    DATE         NOT NULL,
   end_time    TIME         NOT NULL
 );
 
+ALTER SEQUENCE user_id_seq RESTART WITH 101;

@@ -11,10 +11,14 @@ INSERT INTO public.project (id, name, course_id)
 
 INSERT INTO public.team (id, name, project_id, course_id)
   VALUES (1, 'Team Nurk', 1, 1);
-INSERT INTO public."user" (id, first_name, last_name, email, password)
-  VALUES (1, 'Tom', 'Nurkkala', 'tnurkkala@cse.taylor.edu', 'password');
-INSERT INTO public.user_team (user_id, team_id)
-  VALUES (1, 1);
+
+INSERT INTO account (id, first_name, last_name, email, password_hash)
+    VALUES (1, 'Admin', 'User', 'admin@example.com', 'pbkdf2:sha256:50000$8TqukkDe$05da93f2d0fdd5ca7b4c671aa384ea633626903fbd5fcdd9bd0d8872bbd9d499')
+INSERT INTO public.account (id, first_name, last_name, email, password_hash)
+  VALUES (2, 'Tom', 'Nurkkala', 'tnurkkala@cse.taylor.edu', 'password');
+INSERT INTO public.account_team (account_id, team_id)
+  VALUES (2, 1);
 
 INSERT INTO public.time (id, description, project_id, user_id, start_date, start_time, end_date, end_time)
-  VALUES (1, 'Define data model', 1, 1, '2018-03-12', '21:00:00', '2018-03-12', '22:33:00');
+  VALUES (1, 'Define data model', 1, 2, '2018-03-12', '21:00:00', '2018-03-12', '22:33:00');
+
