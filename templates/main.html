@@ -4,11 +4,15 @@
     <div class="container">
         <header>
             <nav class="navbar navbar-expand-md navbar-light bg-light">
-                <a class="navbar-brand" href="{{ url_for('index') }}">Time Machine</a>
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='persistence-of-memory.jpg') }}"
+                         height="50" alt="Dali was weird">
+                    Time Machine
+                    </a>
                 <ul class="nav">
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('time_sheet') }}">Time Sheet</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('time_entry') }}">Time Entry</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('time_sheet') }}">Time Sheet</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('time_entry') }}">Time Entry</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Log Out</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Log In</a></li>
