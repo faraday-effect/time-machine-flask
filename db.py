@@ -17,6 +17,7 @@ def close_db_connection():
 
 # User
 
+
 def create_user(user):
     query = """
     INSERT INTO account (first_name, last_name, email, password_hash)
@@ -46,6 +47,57 @@ def read_user_by_email(email):
     g.cursor.execute(query, {'email': email})
     return g.cursor.fetchone()
 
+
+# Course
+
+def create_course(course_info):
+    query = """
+    INSERT INTO course(designation, name, semester, year)
+    VALUES(%(designation)s, %(name)s, %(semester)s, %(year)s)
+    """
+    g.cursor.execute(query, course_info)
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+def read_all_courses():
+    g.cursor.execute('SELECT * FROM course ORDER BY designation')
+    return g.cursor.fetchall()
+
+
+# Team
+
+
+def create_team(team_info):
+    query = """
+    INSERT INTO team(name, course_id)
+    VALUES(%(name)s, %(course_id)s)
+    """
+    g.cursor.execute(query, team_info)
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+def read_all_teams():
+    query = """
+SELECT
+  team.id     AS team_id,
+  team.name   AS team_name,
+  course.id   AS course_id,
+  designation,
+  course.name AS course_name,
+  semester,
+  year
+FROM team
+  INNER JOIN course ON team.course_id = course.id
+ORDER BY
+  team_name, designation;
+    """
+    g.cursor.execute(query)
+    return g.cursor.fetchall()
+
+
+# Time
 
 def read_time_entries():
     g.cursor.execute('SELECT * FROM time ORDER BY start_date, start_time')

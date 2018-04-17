@@ -1,4 +1,4 @@
-INSERT INTO public.course (id, designation, name, semeser, year)
+INSERT INTO public.course (id, designation, name, semester, year)
   VALUES (1, 'SYS 394', 'Information Systems Design', 'Spring', 2018);
 
 INSERT INTO public.project (id, name, course_id)

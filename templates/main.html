@@ -13,9 +13,11 @@
                     {% if current_user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('time_sheet') }}">Time Sheet</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('time_entry') }}">Time Entry</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('all_courses') }}">Courses</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('all_teams') }}">Teams</a></li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#"
+                               id="navbarDropdown" role="button" data-toggle="dropdown">
                                 Welcome, {{ current_user.first_name }}
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -39,7 +41,7 @@
             {% endblock %}
         </div>
 
-        <footer>
+        <footer class="pt-4 my-md-5 pt-md-5 border-top">
             <div class="row">
                 <div class="col">
                     &copy; Copyright 2018 by Tom Nurkkala
@@ -47,7 +49,9 @@
                 <div class="col">
                     <h4>Links</h4>
                     <ul class="list-unstyled">
-                        <li><a class="text-muted" href="#">Source</a></li>
+                        <li>
+                            <a class="text-muted" href="https://github.com/faraday-effect/time-machine">Source Code</a>
+                        </li>
                     </ul>
                 </div>
             </div>

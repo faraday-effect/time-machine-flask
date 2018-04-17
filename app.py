@@ -1,10 +1,11 @@
 from urllib.parse import urlparse, urljoin
+import datetime
 
 from flask import Flask, render_template, flash, redirect, url_for, abort, request
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, StringField, PasswordField, HiddenField
-from wtforms.fields.html5 import DateField, TimeField
+from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField
+from wtforms.fields.html5 import DateField, TimeField, IntegerField
 from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRequired, EqualTo
 
 import db
@@ -72,9 +73,9 @@ def login():
                 next = request.args.get('next')
                 if not is_safe_url(next):
                     return abort(400)
+                return redirect(next or url_for('index'))
             else:
                 flash('Login failed')
-        return redirect(next or url_for('index'))
     return render_template('login.html', form=login_form)
 
 
@@ -123,6 +124,73 @@ def time_entry():
         else:
             flash("Problem adding time")
     return render_template('time-entry.html', form=time_entry_form)
+
+
+class CourseForm(FlaskForm):
+    designation = StringField('Designation',
+                              render_kw={'placeholder': '(e.g., SYS394)'},
+                              validators=[InputRequired()])
+    name = StringField('Course Name',
+                       render_kw={'placeholder': '(e.g., Information Systems Design)'},
+                       validators=[InputRequired()])
+    semester = SelectField('Semester',
+                           choices=[('fall', 'Fall'), ('jterm', 'J-Term'), ('spring', 'Spring')])
+    year = IntegerField('Year',
+                        default=datetime.date.today().year,
+                        validators=[NumberRange(min=2000)])
+    submit = SubmitField()
+
+
+@app.route('/courses/all')
+@login_required
+def all_courses():
+    return render_template('courses/all.html', courses=db.read_all_courses())
+
+
+@app.route('/courses/create', methods=['GET', 'POST'])
+@login_required
+def create_course():
+    course_form = CourseForm()
+    if course_form.validate_on_submit():
+        rowcount = db.create_course({'designation': course_form.designation.data,
+                                     'name': course_form.name.data,
+                                     'semester': course_form.semester.data,
+                                     'year': course_form.year.data})
+        if rowcount == 1:
+            flash('Course {} created'.format(course_form.name.data))
+            return redirect(url_for('all_courses'))
+    return render_template('courses/add.html', form=course_form)
+
+
+@app.route('/teams/all')
+@login_required
+def all_teams():
+    return render_template('teams/all.html', teams=db.read_all_teams())
+
+
+class TeamForm(FlaskForm):
+    name = StringField('Team Name', validators=[InputRequired()])
+    courses = SelectField('Course', coerce=int)
+    submit = SubmitField()
+
+
+@app.route('/teams/create', methods=['GET', 'POST'])
+@login_required
+def create_team():
+    team_form = TeamForm()
+
+    team_form.courses.choices = [(row['id'],
+                                  "{}-{} ({} {})".format(row['designation'], row['name'],
+                                                         row['semester'], row['year']))
+                                 for row in db.read_all_courses()]
+
+    if team_form.validate_on_submit():
+        rowcount = db.create_team({'name': team_form.name.data,
+                                   'course_id': team_form.courses.data})
+        if rowcount == 1:
+            flash('Team {} created'.format(team_form.name.data))
+            return redirect(url_for('all_teams'))
+    return render_template('teams/add.html', form=team_form)
 
 
 if __name__ == '__main__':
