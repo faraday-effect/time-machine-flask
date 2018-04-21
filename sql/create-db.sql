@@ -7,6 +7,16 @@ DROP TABLE IF EXISTS team;
 DROP TABLE IF EXISTS sprint;
 DROP TABLE IF EXISTS project;
 DROP TABLE IF EXISTS course;
+DROP TABLE IF EXISTS semester;
+
+CREATE TABLE semester
+(
+  id   SERIAL      NOT NULL
+    CONSTRAINT semester_pkey
+    PRIMARY KEY,
+  name VARCHAR(15) NOT NULL,
+  year INTEGER     NOT NULL
+);
 
 CREATE TABLE course
 (
@@ -15,8 +25,9 @@ CREATE TABLE course
     PRIMARY KEY,
   designation VARCHAR(10) NOT NULL,
   name        VARCHAR(40) NOT NULL,
-  semeser     VARCHAR(10) NOT NULL,
-  year        INTEGER     NOT NULL
+  semester_id  INTEGER     NOT NULL
+    CONSTRAINT course_semester_id_fk
+    REFERENCES semester
 );
 
 CREATE TABLE project

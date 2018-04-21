@@ -13,3 +13,6 @@ VALUES ((SELECT id
         (SELECT id
          FROM role
          WHERE name = 'Administrator'));
+
+INSERT INTO public.semester (id, name, year) VALUES (1, 'Fall', 2017);
+INSERT INTO public.semester (id, name, year) VALUES (2, 'Spring', 2018);

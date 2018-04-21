@@ -5,13 +5,13 @@
 {% block content %}
     <h1>
         All Teams
-        <a class="btn btn-sm btn-primary" href="{{ url_for('create_team') }}">Create Team</a>
     </h1>
     <table class="table table-striped table-hover table-sm">
         <thead>
         <tr>
             <th>Name</th>
             <th>Course</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -22,6 +22,11 @@
                     {{ team.designation }}&mdash;{{ team.course_name }}
                     ({{ team.semester }} {{ team.year }})
                 </td>
+                <td>
+                    <a class="btn btn-sm btn-outline-secondary" href="#">Edit</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="#">Deactivate</a>
+                </td>
+
             </tr>
         {% else %}
             <tr>
@@ -30,4 +35,5 @@
         {% endfor %}
         </tbody>
     </table>
+    <a class="btn btn-sm btn-primary" href="{{ url_for('create_team') }}">Create New Team</a>
 {% endblock %}

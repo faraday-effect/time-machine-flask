@@ -8,30 +8,34 @@ from wtforms import SubmitField, StringField, PasswordField, HiddenField, Select
 from wtforms.fields.html5 import DateField, TimeField, IntegerField
 from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRequired, EqualTo
 
+data_source_name = "dbname=time-machine user=tom host=localhost"
+
 import db
+
+db_mgr = db.DbConnectionManager(data_source_name)
 from user import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super secret key'
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 
 @app.before_request
 def before_request():
-    db.open_db_connection()
+    db_mgr.open()
 
 
 @app.teardown_request
 def teardown_request(exception):
-    db.close_db_connection()
+    db_mgr.close()
 
 
 @login_manager.user_loader
 def load_user(email):
-    print("LOAD USER")
     user = User().read(email)
-    print("USER", user)
     if user.valid_user:
         return user
     else:
@@ -133,11 +137,7 @@ class CourseForm(FlaskForm):
     name = StringField('Course Name',
                        render_kw={'placeholder': '(e.g., Information Systems Design)'},
                        validators=[InputRequired()])
-    semester = SelectField('Semester',
-                           choices=[('fall', 'Fall'), ('jterm', 'J-Term'), ('spring', 'Spring')])
-    year = IntegerField('Year',
-                        default=datetime.date.today().year,
-                        validators=[NumberRange(min=2000)])
+    semester_id = SelectField('Semester', coerce=int)
     submit = SubmitField()
 
 
@@ -151,11 +151,12 @@ def all_courses():
 @login_required
 def create_course():
     course_form = CourseForm()
+    course_form.semester_id.choices = [(row['id'], row['name']) for row in db.read_all_semesters()]
+    print(request.form)
     if course_form.validate_on_submit():
         rowcount = db.create_course({'designation': course_form.designation.data,
                                      'name': course_form.name.data,
-                                     'semester': course_form.semester.data,
-                                     'year': course_form.year.data})
+                                     'semester_id': course_form.semester_id.data})
         if rowcount == 1:
             flash('Course {} created'.format(course_form.name.data))
             return redirect(url_for('all_courses'))
@@ -170,7 +171,7 @@ def all_teams():
 
 class TeamForm(FlaskForm):
     name = StringField('Team Name', validators=[InputRequired()])
-    courses = SelectField('Course', coerce=int)
+    course_id = SelectField('Course', coerce=int)
     submit = SubmitField()
 
 
@@ -178,15 +179,14 @@ class TeamForm(FlaskForm):
 @login_required
 def create_team():
     team_form = TeamForm()
-
-    team_form.courses.choices = [(row['id'],
+    team_form.course_id.choices = [(row['id'],
                                   "{}-{} ({} {})".format(row['designation'], row['name'],
                                                          row['semester'], row['year']))
-                                 for row in db.read_all_courses()]
+                                   for row in db.read_all_courses()]
 
     if team_form.validate_on_submit():
         rowcount = db.create_team({'name': team_form.name.data,
-                                   'course_id': team_form.courses.data})
+                                   'course_id': team_form.course_id.data})
         if rowcount == 1:
             flash('Team {} created'.format(team_form.name.data))
             return redirect(url_for('all_teams'))

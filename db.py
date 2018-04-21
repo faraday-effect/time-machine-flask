@@ -2,17 +2,26 @@ from flask import g
 import psycopg2
 import psycopg2.extras
 
-data_source_name = "dbname=time-machine user=tom host=localhost"
 
+class DbConnectionManager(object):
+    def __init__(self, data_source_name):
+        self.data_source_name = data_source_name
+        self.is_open = False
 
-def open_db_connection():
-    g.connection = psycopg2.connect(data_source_name)
-    g.cursor = g.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    def open(self):
+        if not self.is_open:
+            g.connection = psycopg2.connect(self.data_source_name)
+            g.cursor = g.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            self.is_open = True
 
+    def close(self):
+        if self.is_open:
+            self.is_open = False
+            g.cursor.close()
+            g.connection.close()
 
-def close_db_connection():
-    g.cursor.close()
-    g.connection.close()
+    def is_open(self):
+        return self.is_open
 
 
 # User
@@ -52,16 +61,41 @@ def read_user_by_email(email):
 
 def create_course(course_info):
     query = """
-    INSERT INTO course(designation, name, semester, year)
-    VALUES(%(designation)s, %(name)s, %(semester)s, %(year)s)
+    INSERT INTO course(designation, name, semester_id)
+    VALUES(%(designation)s, %(name)s, %(semester_id)s)
     """
+    print(course_info)
     g.cursor.execute(query, course_info)
     g.connection.commit()
     return g.cursor.rowcount
 
 
 def read_all_courses():
-    g.cursor.execute('SELECT * FROM course ORDER BY designation')
+    query = """
+SELECT
+  course.id,
+  course.designation, 
+  course.name,
+  format('%s %s', semester.name, semester.year) AS semester
+FROM course
+  INNER JOIN semester ON course.semester_id = semester.id
+ORDER BY
+  designation;
+    """
+    g.cursor.execute(query)
+    return g.cursor.fetchall()
+
+
+def read_all_semesters():
+    g.cursor.execute("""
+    SELECT
+      id,
+      format('%s %s', name, year) AS name
+    FROM
+      semester
+    ORDER BY
+      year, name
+    """)
     return g.cursor.fetchall()
 
 
@@ -86,10 +120,11 @@ SELECT
   course.id   AS course_id,
   designation,
   course.name AS course_name,
-  semester,
-  year
+  semester.name AS semester_name,
+  semester.year AS semester_year
 FROM team
   INNER JOIN course ON team.course_id = course.id
+  INNER JOIN semester ON course.semester_id = semester.id
 ORDER BY
   team_name, designation;
     """
