@@ -25,7 +25,7 @@ CREATE TABLE course
     PRIMARY KEY,
   designation VARCHAR(10) NOT NULL,
   name        VARCHAR(40) NOT NULL,
-  semester_id  INTEGER     NOT NULL
+  semester_id INTEGER     NOT NULL
     CONSTRAINT course_semester_id_fk
     REFERENCES semester
 );
@@ -132,3 +132,4 @@ CREATE TABLE account_role
     CONSTRAINT account_role_role_id_fk
     REFERENCES role
 );
+

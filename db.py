@@ -57,14 +57,42 @@ def read_user_by_email(email):
     return g.cursor.fetchone()
 
 
-# Course
+# Project
+def create_project(project_info):
+    query = """
+    INSERT INTO project(name, course_id)
+    VALUES (%(name)s, %(course_id)s)
+    """
+    g.cursor.execute(query, project_info)
+    g.connection.commit()
+    return g.cursor.rowcount
 
+
+def read_all_projects():
+    query = """
+SELECT
+  project.id         AS project_id,
+  project.name       AS project_name,
+  course.id          AS course_id,
+  course.designation AS course_designation,
+  course.name                                   AS course_name,
+  format('%s %s', semester.name, semester.year) AS semester
+FROM project
+  INNER JOIN course ON project.course_id = course.id
+  INNER JOIN semester ON course.semester_id = semester.id
+ORDER BY
+  semester DESC, course.designation ASC, project_name ASC
+    """
+    g.cursor.execute(query)
+    return g.cursor.fetchall()
+
+
+# Course
 def create_course(course_info):
     query = """
     INSERT INTO course(designation, name, semester_id)
     VALUES(%(designation)s, %(name)s, %(semester_id)s)
     """
-    print(course_info)
     g.cursor.execute(query, course_info)
     g.connection.commit()
     return g.cursor.rowcount
@@ -100,12 +128,10 @@ def read_all_semesters():
 
 
 # Team
-
-
 def create_team(team_info):
     query = """
-    INSERT INTO team(name, course_id)
-    VALUES(%(name)s, %(course_id)s)
+    INSERT INTO team(name, course_id, project_id)
+    VALUES(%(name)s, %(course_id)s, %(project_id)s)
     """
     g.cursor.execute(query, team_info)
     g.connection.commit()
@@ -115,18 +141,21 @@ def create_team(team_info):
 def read_all_teams():
     query = """
 SELECT
-  team.id     AS team_id,
-  team.name   AS team_name,
-  course.id   AS course_id,
-  designation,
-  course.name AS course_name,
-  semester.name AS semester_name,
-  semester.year AS semester_year
+  team.id            AS team_id,
+  team.name          AS team_name,
+  course.id          AS course_id,
+  course.designation AS course_designation,
+  course.name        AS course_name,
+  format('%s %s', semester.name, semester.year)
+                     AS semester,
+  project.id         AS project_id,
+  project.name       AS project_name
 FROM team
   INNER JOIN course ON team.course_id = course.id
   INNER JOIN semester ON course.semester_id = semester.id
+  INNER JOIN project ON team.project_id = project.id
 ORDER BY
-  team_name, designation;
+  team_name, designation
     """
     g.cursor.execute(query)
     return g.cursor.fetchall()

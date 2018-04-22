@@ -1,0 +1,12 @@
+{% extends 'main.html' %}
+
+{% block title %}Add a Project{% endblock %}
+
+{% block content %}
+    {% include "_form_errors.html" %}
+    <form method="POST">
+        {{ form.csrf_token }}
+        {% include "projects/_fields.html" %}
+        {{ form.submit(class_="btn btn-primary") }}
+    </form>
+{% endblock %}
