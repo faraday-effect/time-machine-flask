@@ -25,32 +25,65 @@ class DbConnectionManager(object):
 
 
 # User
-
-
-def create_user(user):
+def create_account(user):
     query = """
     INSERT INTO account (first_name, last_name, email, password_hash)
-    VALUES (%(first)s, %(last)s, %(email)s, %(pass)s)
+    VALUES (%(first_name)s, %(last_name)s, %(email)s, %(password_hash)s)
     """
     g.cursor.execute(query, {
-        'first': user.first_name,
-        'last': user.last_name,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
         'email': user.email,
-        'password_hash': user.password
+        'password_hash': user.password_hash
     })
     g.connection.commit()
     return g.cursor.rowcount
 
 
-def read_user_by_email(email):
+def create_account_team(account_team_info):
     query = """
-    SELECT
-      account.id AS account_id,
-      first_name, last_name, email, password_hash,
-      role_id, role.name  AS role_name
+    INSERT INTO account_team(account_id, team_id, role_id) 
+    VALUES (%(account_id)s, %(team_id)s, %(role_id)s) 
+    """
+    g.cursor.execute(query, account_team_info)
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+def read_all_accounts():
+    query = """
+SELECT
+  account.id           AS account_id,
+  first_name,
+  last_name,
+  email,
+  superuser,
+  account_team.team_id AS team_id,
+  team.name            AS team_name,
+  account_team.role_id AS role_id,
+  role.name            AS role_name
+FROM account
+  LEFT OUTER JOIN account_team ON account.id = account_team.account_id
+  LEFT OUTER JOIN team ON account_team.team_id = team.id
+  LEFT OUTER JOIN role ON account_team.role_id = role.id    
+ORDER BY last_name, first_name
+    """
+    g.cursor.execute(query)
+    return g.cursor.fetchall()
+
+
+def read_default_role():
+    g.cursor.execute('SELECT * FROM role WHERE is_default')
+    rows = g.cursor.fetchall()
+    if len(rows) != 1:
+        raise Exception('Got {} rows for default role'.format(len(rows)))
+    return rows[0]
+
+
+def read_account_by_email(email):
+    query = """
+    SELECT *
     FROM account
-    INNER JOIN account_role ON account.id = account_role.account_id
-    INNER JOIN role ON account_role.role_id = role.id
     WHERE email = %(email)s
     """
     g.cursor.execute(query, {'email': email})

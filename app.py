@@ -1,20 +1,16 @@
 from urllib.parse import urlparse, urljoin
-import datetime
 
 from flask import Flask, render_template, flash, redirect, url_for, abort, request
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
-from flask_wtf import FlaskForm
-from markupsafe import Markup
-from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField
-from wtforms.fields.html5 import DateField, TimeField, IntegerField
-from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRequired, EqualTo
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
-data_source_name = "dbname=time-machine user=tom host=localhost"
+from user import User
+from forms import LoginForm, SignupForm, TimeEntryForm, CourseForm, ProjectForm, course_choices, TeamForm, \
+    project_choices, team_choices
 
 import db
 
+data_source_name = "dbname=time-machine user=tom host=localhost"
 db_mgr = db.DbConnectionManager(data_source_name)
-from user import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super secret key'
@@ -36,11 +32,8 @@ def teardown_request(exception):
 
 @login_manager.user_loader
 def load_user(email):
-    user = User().read(email)
-    if user.valid_user:
-        return user
-    else:
-        return None
+    # Returns None if `email` is bogus.
+    return User.read(email)
 
 
 @app.route('/')
@@ -51,13 +44,6 @@ def index():
         return redirect(url_for('login'))
 
 
-class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[Email()])
-    password = PasswordField('Password')
-    next = HiddenField('Next')
-    submit = SubmitField('Sign In')
-
-
 # From http://flask.pocoo.org/snippets/62/
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
@@ -66,11 +52,11 @@ def is_safe_url(target):
             ref_url.netloc == test_url.netloc)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/accounts/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        user = User().read(login_form.email.data)
+        user = User.read(login_form.email.data)
         if user is not None:
             if user.verify_password(login_form.password.data):
                 login_user(user)
@@ -81,14 +67,43 @@ def login():
                 return redirect(next or url_for('index'))
             else:
                 flash('Login failed')
-    return render_template('login.html', form=login_form)
+    return render_template('accounts/login.html', form=login_form)
 
 
-@app.route('/logout')
+@app.route('/accounts/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/accounts/signup', methods=['GET', 'POST'])
+def signup():
+    signup_form = SignupForm()
+    signup_form.team_id.choices = team_choices()
+    if signup_form.validate_on_submit():
+        user = User.create(signup_form.first_name.data,
+                           signup_form.last_name.data,
+                           signup_form.email.data,
+                           signup_form.password.data)
+        if user is None:
+            flash('Failed to create user')
+        else:
+            account = db.read_account_by_email(signup_form.email.data)
+            default_role = db.read_default_role()
+            row_count = db.create_account_team({'account_id': account['id'],
+                                                'team_id': signup_form.team_id.data,
+                                                'role_id': default_role['id']})
+            if row_count == 1:
+                flash('User {} created'.format(signup_form.email.data))
+                return redirect(url_for('login'))
+    return render_template('accounts/signup.html', form=signup_form)
+
+
+@app.route('/accounts/all')
+@login_required
+def all_accounts():
+    return render_template('accounts/all.html', accounts=db.read_all_accounts())
 
 
 @app.route('/settings')
@@ -101,15 +116,6 @@ def settings():
 @login_required
 def time_sheet():
     return render_template('time-sheet.html', entries=db.read_time_entries())
-
-
-class TimeEntryForm(FlaskForm):
-    start_date = DateField('Start Date')
-    start_time = TimeField('Start Time')
-    end_date = DateField('End Date')
-    end_time = TimeField('End Time')
-    description = StringField('Description')
-    submit = SubmitField('Add Time Entry')
 
 
 @app.route('/time-entry', methods=['GET', 'POST'])
@@ -129,17 +135,6 @@ def time_entry():
         else:
             flash("Problem adding time")
     return render_template('time-entry.html', form=time_entry_form)
-
-
-class CourseForm(FlaskForm):
-    designation = StringField('Designation',
-                              render_kw={'placeholder': '(e.g., SYS394)'},
-                              validators=[InputRequired()])
-    name = StringField('Course Name',
-                       render_kw={'placeholder': '(e.g., Information Systems Design)'},
-                       validators=[InputRequired()])
-    semester_id = SelectField('Semester', coerce=int)
-    submit = SubmitField()
 
 
 @app.route('/courses/all')
@@ -164,23 +159,11 @@ def create_course():
     return render_template('courses/add.html', form=course_form)
 
 
-class ProjectForm(FlaskForm):
-    name = StringField('Project Name',
-                       render_kw={'placeholder': '(e.g., Home Church Manager)'},
-                       validators=[InputRequired()])
-    course_id = SelectField('Course', coerce=int)
-    submit = SubmitField()
-
-
 @app.route('/projects/create', methods=['GET', 'POST'])
 @login_required
 def create_project():
     project_form = ProjectForm()
-    project_form.course_id.choices = [(row['id'],
-                                       Markup("{}&mdash;{} ({})".format(row['designation'],
-                                                                        row['name'],
-                                                                        row['semester'])))
-                                      for row in db.read_all_courses()]
+    project_form.course_id.choices = course_choices()
 
     if project_form.validate_on_submit():
         rowcount = db.create_project({'name': project_form.name.data,
@@ -203,24 +186,12 @@ def all_teams():
     return render_template('teams/all.html', teams=db.read_all_teams())
 
 
-class TeamForm(FlaskForm):
-    name = StringField('Team Name', validators=[InputRequired()])
-    course_id = SelectField('Course', coerce=int)
-    project_id = SelectField('Project', coerce=int)
-    submit = SubmitField()
-
-
 @app.route('/teams/create', methods=['GET', 'POST'])
 @login_required
 def create_team():
     team_form = TeamForm()
-    team_form.course_id.choices = [(row['id'],
-                                    "{}-{} ({})".format(row['designation'],
-                                                        row['name'],
-                                                        row['semester']))
-                                   for row in db.read_all_courses()]
-    team_form.project_id.choices = [(row['project_id'], row['project_name'])
-                                    for row in db.read_all_projects()]
+    team_form.course_id.choices = course_choices()
+    team_form.project_id.choices = project_choices()
 
     if team_form.validate_on_submit():
         rowcount = db.create_team({'name': team_form.name.data,

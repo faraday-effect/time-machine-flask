@@ -20,4 +20,14 @@
         </div>
         {{ form.submit(class_="btn btn-primary") }}
     </form>
+    <div class="row col-6 mt-4 mb-4">
+        <div class="col">
+            <hr>
+        </div>
+        <div class="col-auto">OR</div>
+        <div class="col">
+            <hr>
+        </div>
+    </div>
+    <a class="btn btn-outline-primary" href="{{ url_for('signup') }}">Create an Account</a>
 {% endblock %}
