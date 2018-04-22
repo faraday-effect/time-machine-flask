@@ -4,6 +4,7 @@
 
 {% block content %}
     <h1>Sign Up for an Account</h1>
+    {% include "_form_errors.html" %}
     <form method="POST">
         {{ form.csrf_token }}
         <div class="form-row">

@@ -4,6 +4,7 @@
 
 {% block content %}
     <h1>Log In to Time Machine</h1>
+    {% include "_form_errors.html" %}
     <form method="POST">
         {{ form.hidden_tag() }}
         <div class="form-row">

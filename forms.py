@@ -34,7 +34,7 @@ class ProjectForm(FlaskForm):
 
 
 class SignupForm(FlaskForm):
-    email = StringField('Email', validators=[Email()])
+    email = StringField('Email', validators=[InputRequired(), Email()])
     first_name = StringField('First Name', validators=[InputRequired()])
     last_name = StringField('Last Name', validators=[InputRequired()])
     team_id = SelectField('Team', coerce=int)
