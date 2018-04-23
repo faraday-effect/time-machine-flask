@@ -115,26 +115,28 @@ def settings():
 @app.route('/time-sheet')
 @login_required
 def time_sheet():
-    return render_template('time-sheet.html', entries=db.read_time_entries())
+    return render_template('time/sheet.html', entries = db.read_time_entries(current_user.id))
 
 
 @app.route('/time-entry', methods=['GET', 'POST'])
 @login_required
 def time_entry():
     time_entry_form = TimeEntryForm()
+    time_entry_form.project_id.choices = project_choices()
     if time_entry_form.validate_on_submit():
-        rowcount = db.create_time_entry(1, 1,
-                                        time_entry_form.start_date.data,
-                                        time_entry_form.start_time.data,
-                                        time_entry_form.end_date.data,
-                                        time_entry_form.end_time.data,
-                                        time_entry_form.description.data)
+        rowcount = db.create_time_entry({
+            'project_id': time_entry_form.project_id.data,
+            'user_id': current_user.id,
+            'start_date': time_entry_form.start_date.data, 'start_time': time_entry_form.start_time.data,
+            'end_date': time_entry_form.end_date.data, 'end_time': time_entry_form.end_time.data,
+            'description': time_entry_form.description.data
+        })
         if rowcount == 1:
             flash("Added time successfully")
             return redirect(url_for('time_sheet'))
         else:
             flash("Problem adding time")
-    return render_template('time-entry.html', form=time_entry_form)
+    return render_template('time/entry.html', form=time_entry_form)
 
 
 @app.route('/courses/all')

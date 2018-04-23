@@ -6,19 +6,28 @@ from db import read_account_by_email, create_account
 
 class User(UserMixin):
     def __init__(self):
+        self.id = None
         self.first_name = self.last_name = None
         self.email = None
         self.password_hash = None
+        self.superuser = False
 
     @classmethod
     def create(cls, first_name, last_name, email, password):
-        self = cls()
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password_hash = generate_password_hash(password)
-        row_count = create_account(self)
-        if row_count == 1:
+        new_account = create_account({
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'password_hash': generate_password_hash(password)
+        })
+        print(new_account)
+        if new_account is not None:
+            self = cls()
+            self.first_name = new_account['first_name']
+            self.last_name = new_account['last_name']
+            self.email = new_account['email']
+            self.password_hash = new_account['password_hash']
+            self.superuser = new_account['superuser']
             return self
         else:
             return None
@@ -28,6 +37,7 @@ class User(UserMixin):
         result = read_account_by_email(email)
         if result is not None:
             self = cls()
+            self.id = result['id']
             self.first_name = result['first_name']
             self.last_name = result['last_name']
             self.email = result['email']

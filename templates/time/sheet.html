@@ -7,8 +7,9 @@
     <table class="table table-striped table-hover table-sm">
         <thead>
         <tr>
-            <th colspan="2">Start</th>
-            <th colspan="2">Stop</th>
+            <th>Project</th>
+            <th>Start</th>
+            <th>Stop</th>
             <th>Hours</th>
             <th>Description</th>
             <th>Actions</th>
@@ -17,10 +18,13 @@
         <tbody>
         {% for entry in entries %}
             <tr>
-                <td>{{ entry.start_date }}</td>
-                <td>{{ entry.start_time }}</td>
-                <td>{{ entry.end_date }}</td>
-                <td>{{ entry.end_time }}</td>
+                <td>{{ entry.project_name }}</td>
+                <td>{{ entry.start_date }}
+                    {{ entry.start_time }}
+                </td>
+                <td>{{ entry.end_date }}
+                    {{ entry.end_time }}
+                </td>
                 <td>{{ 0 }}</td>
                 <td>{{ entry.description }}</td>
                 <td>
@@ -31,7 +35,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="7">No entries</td>
+                <td colspan="6">No entries</td>
             </tr>
         {% endfor %}
         </tbody>

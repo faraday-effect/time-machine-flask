@@ -51,6 +51,7 @@ class TeamForm(FlaskForm):
 
 
 class TimeEntryForm(FlaskForm):
+    project_id = SelectField('Project', coerce=int)
     start_date = DateField('Start Date')
     start_time = TimeField('Start Time')
     end_date = DateField('End Date')

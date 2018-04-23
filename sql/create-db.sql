@@ -91,7 +91,7 @@ CREATE TABLE time
   project_id  INTEGER      NOT NULL
     CONSTRAINT time_project_id_fk
     REFERENCES project,
-  user_id     INTEGER      NOT NULL
+  account_id  INTEGER      NOT NULL
     CONSTRAINT time_user_id_fk
     REFERENCES account,
   start_date  DATE         NOT NULL,
