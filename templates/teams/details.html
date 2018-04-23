@@ -1,0 +1,51 @@
+{% extends 'main.html' %}
+
+{% block title %}{{ details.team_name }}{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ details.team_name }}
+    </h1>
+    <table class="table table-striped table-hover table-sm">
+        <tbody>
+        <tr>
+            <th>Project</th>
+            <td>{{ details.project_name }}</td>
+        </tr>
+        <tr>
+            <th>Course</th>
+            <td>{{ details.course_designation }}&mdash;{{ details.course_name }}</td>
+        </tr>
+        <tr>
+            <th>Semester</th>
+            <td>{{ details.semester }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Team Members</h2>
+    <table class="table table-striped table-hover table-sm">
+        <thead>
+        <tr>
+            <th>Email</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Role</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for member in members %}
+            <td>
+                <a href="{{ url_for('account_details', account_id=member.account_id) }}">
+                    {{ member.email }}
+                </a>
+            </td>
+            <td>{{ member.first_name }}</td>
+            <td>{{ member.last_name }}</td>
+            <td>{{ member.role_name }}</td>
+        {% else %}
+            <td colspan="4">No members of this team</td>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

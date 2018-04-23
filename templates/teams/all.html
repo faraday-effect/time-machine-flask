@@ -19,7 +19,11 @@
         <tbody>
         {% for team in teams %}
             <tr>
-                <td>{{ team.team_name }}</td>
+                <td>
+                    <a href="{{ url_for('team_details', team_id=team.team_id) }}">
+                        {{ team.team_name }}
+                    </a>
+                </td>
                 <td>
                     {{ team.course_designation }}&mdash;{{ team.course_name }}
                 </td>

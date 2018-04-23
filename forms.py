@@ -63,12 +63,13 @@ class TimeEntryForm(FlaskForm):
 def course_choices():
     return [(row['id'],
              Markup("{}&mdash;{} ({})".format(row['designation'], row['name'], row['semester'])))
-             for row in db.read_all_courses()]
+            for row in db.read_all_courses()]
 
 
-def project_choices():
-    return [(row['project_id'], row['project_name'])
-            for row in db.read_all_projects()]
+def project_choices(account_id):
+    return [(row['project_id'],
+             "{} ({})".format(row['project_name'], row['role_name']))
+            for row in db.read_projects_by_account_id(account_id)]
 
 
 def team_choices():

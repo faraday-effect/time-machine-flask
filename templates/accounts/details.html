@@ -1,0 +1,53 @@
+{% extends 'main.html' %}
+
+{% set full_name = " ".join([account.first_name, account.last_name]) %}
+
+{% block title %}{{ full_name }}{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ full_name }}
+    </h1>
+    <table class="table table-striped table-hover table-sm">
+        <tbody>
+        <tr>
+            <th>First Name</th>
+            <td>{{ account.first_name }}</td>
+        </tr>
+        <tr>
+            <th>Last Name</th>
+            <td>{{ account.last_name }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ account.email }}</td>
+        </tr>
+        <tr>
+            <th>Superuser</th>
+            <td>{{ account.superuser }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Teams</h2>
+    <table class="table table-striped table-hover table-sm">
+        <thead>
+        <tr>
+            <th>Team</th>
+            <th>Project</th>
+            <th>Role</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for team in teams %}
+            <tr>
+                <td>{{ team.team_name }}</td>
+                <td>{{ team.project_name }}</td>
+                <td>{{ team.role_name }}</td>
+            </tr>
+        {% else %}
+            <td colspan="3">No teams for this user</td>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

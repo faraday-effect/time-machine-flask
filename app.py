@@ -106,6 +106,14 @@ def all_accounts():
     return render_template('accounts/all.html', accounts=db.read_all_accounts())
 
 
+@app.route('/accounts/<int:account_id>')
+@login_required
+def account_details(account_id):
+    return render_template('accounts/details.html',
+                           account=db.read_account_by_id(account_id),
+                           teams=db.read_teams_by_account_id(account_id))
+
+
 @app.route('/settings')
 @login_required
 def settings():
@@ -122,7 +130,12 @@ def time_sheet():
 @login_required
 def time_entry():
     time_entry_form = TimeEntryForm()
-    time_entry_form.project_id.choices = project_choices()
+
+    choices = project_choices(current_user.id)
+    if len(choices) < 1:
+        flash('You are not assigned to any projects')
+    time_entry_form.project_id.choices = choices
+
     if time_entry_form.validate_on_submit():
         rowcount = db.create_time_entry({
             'project_id': time_entry_form.project_id.data,
@@ -186,6 +199,14 @@ def all_projects():
 @login_required
 def all_teams():
     return render_template('teams/all.html', teams=db.read_all_teams())
+
+
+@app.route('/teams/<team_id>')
+@login_required
+def team_details(team_id):
+    return render_template('teams/details.html',
+                           details=db.read_team_by_id(team_id),
+                           members=db.read_members_by_team_id(team_id))
 
 
 @app.route('/teams/create', methods=['GET', 'POST'])
