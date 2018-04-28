@@ -47,7 +47,7 @@ CREATE TABLE sprint
     PRIMARY KEY,
   name       VARCHAR(40) NOT NULL,
   start_date DATE        NOT NULL,
-  end_date   DATE        NOT NULL,
+  stop_date   DATE        NOT NULL,
   project_id INTEGER     NOT NULL
     CONSTRAINT sprint_project_id_fk
     REFERENCES project
@@ -96,8 +96,8 @@ CREATE TABLE time
     REFERENCES account,
   start_date  DATE         NOT NULL,
   start_time  TIME         NOT NULL,
-  end_date    DATE         NOT NULL,
-  end_time    TIME         NOT NULL
+  stop_date    DATE         NOT NULL,
+  stop_time    TIME         NOT NULL
 );
 
 CREATE TABLE role

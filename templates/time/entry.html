@@ -15,25 +15,31 @@
             <div class="col">
                 <div class="form-group">
                     {{ form.start_date.label }}
-                    {{ form.start_date(class_="form-control") }}
+                    {{ form.start_date(class_="form-control start-stop") }}
                 </div>
             </div>
             <div class="col">
                 <div class="form-group">
                     {{ form.start_time.label }}
-                    {{ form.start_time(class_="form-control") }}
+                    {{ form.start_time(class_="form-control start-stop") }}
                 </div>
             </div>
             <div class="col">
                 <div class="form-group">
-                    {{ form.end_date.label }}
-                    {{ form.end_date(class_="form-control") }}
+                    {{ form.stop_date.label }}
+                    {{ form.stop_date(class_="form-control start-stop") }}
                 </div>
             </div>
             <div class="col">
                 <div class="form-group">
-                    {{ form.end_time.label }}
-                    {{ form.end_time(class_="form-control") }}
+                    {{ form.stop_time.label }}
+                    {{ form.stop_time(class_="form-control start-stop") }}
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Duration</label>
+                    <div id="duration" class="h5 py-2">0 m</div>
                 </div>
             </div>
         </div>
@@ -41,6 +47,53 @@
             {{ form.description.label }}
             {{ form.description(class_="form-control") }}
         </div>
-        {{ form.submit(class_="btn btn-primary") }}
+        {{ form.submit(class_="btn btn-primary", disabled=True) }}
     </form>
+{% endblock %}
+
+{% block local_javascript %}
+    <script>
+        {# Update end date/time when start changes. #}
+        $('#start_date').change(function () {
+            $('#stop_date').val($(this).val());
+        });
+
+        $('#start_time').change(function () {
+            $('#stop_time').val($(this).val());
+        });
+
+        {# Calculate the time difference #}
+        function compute_time_difference() {
+            var start_dt = moment($("#start_date").val() + " " + $("#start_time").val());
+            var stop_dt = moment($("#stop_date").val() + " " + $("#stop_time").val());
+            return stop_dt.diff(start_dt, 'minutes');
+        }
+
+        {# Format the difference in readable form #}
+        function format_difference(difference) {
+            return moment.duration(difference, 'minutes').format("d [d] h [h] m [m]");
+        }
+
+        {# Update the UI #}
+        function update_controls() {
+            var time_difference = compute_time_difference();
+            var description_length = $('#description').val().length;
+
+            if (time_difference >= 0) {
+                $('#duration').text(format_difference(time_difference));
+            } else {
+                $('#duration').text('Invalid');
+            }
+
+            $('#submit').prop('disabled', time_difference <= 0 || description_length <= 0);
+        }
+
+        $('.start-stop').change(function () {
+            update_controls();
+        });
+        $('#description').on("change paste keyup", function () {
+            update_controls();
+        });
+    </script>
+
 {% endblock %}

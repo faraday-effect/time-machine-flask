@@ -1,3 +1,5 @@
+import pendulum
+
 from flask_wtf import FlaskForm
 from markupsafe import Markup
 from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField
@@ -52,10 +54,10 @@ class TeamForm(FlaskForm):
 
 class TimeEntryForm(FlaskForm):
     project_id = SelectField('Project', coerce=int)
-    start_date = DateField('Start Date')
-    start_time = TimeField('Start Time')
-    end_date = DateField('End Date')
-    end_time = TimeField('End Time')
+    start_date = DateField('Start Date', default=pendulum.now)
+    start_time = TimeField('Start Time', default=pendulum.now)
+    stop_date = DateField('Stop Date', default=pendulum.now)
+    stop_time = TimeField('Stop Time', default=pendulum.now)
     description = StringField('Description')
     submit = SubmitField('Add Time Entry')
 

@@ -273,8 +273,8 @@ def read_time_entries(account_id=None):
           description,
           start_date,
           start_time,
-          end_date,
-          end_time,
+          stop_date,
+          stop_time,
           project.id   AS project_id,
           project.name AS project_name
         FROM time
@@ -292,10 +292,10 @@ def create_time_entry(time_entry_info):
     query = """
         INSERT INTO public.time (description, project_id, account_id, 
           start_date, start_time, 
-          end_date, end_time)
+          stop_date, stop_time)
         VALUES (%(description)s, %(project_id)s, %(user_id)s, 
           %(start_date)s, %(start_time)s, 
-          %(end_date)s, %(end_time)s)
+          %(stop_date)s, %(stop_time)s)
     """
     g.cursor.execute(query, time_entry_info)
     g.connection.commit()

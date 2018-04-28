@@ -2,6 +2,8 @@ from urllib.parse import urlparse, urljoin
 
 from flask import Flask, render_template, flash, redirect, url_for, abort, request
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from flask_debugtoolbar import DebugToolbarExtension
+
 
 from user import User
 from forms import LoginForm, SignupForm, TimeEntryForm, CourseForm, ProjectForm, course_choices, TeamForm, \
@@ -18,6 +20,9 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+#app.debug = True
+toolbar = DebugToolbarExtension(app)
 
 
 @app.before_request
@@ -141,7 +146,7 @@ def time_entry():
             'project_id': time_entry_form.project_id.data,
             'user_id': current_user.id,
             'start_date': time_entry_form.start_date.data, 'start_time': time_entry_form.start_time.data,
-            'end_date': time_entry_form.end_date.data, 'end_time': time_entry_form.end_time.data,
+            'stop_date': time_entry_form.stop_date.data, 'stop_time': time_entry_form.stop_time.data,
             'description': time_entry_form.description.data
         })
         if rowcount == 1:
