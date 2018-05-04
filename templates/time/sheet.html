@@ -10,7 +10,7 @@
             <th>Project</th>
             <th>Start</th>
             <th>Stop</th>
-            <th>Hours</th>
+            <th>Duration</th>
             <th>Description</th>
             <th>Actions</th>
         </tr>
@@ -25,7 +25,7 @@
                 <td>{{ entry.stop_date }}
                     {{ entry.stop_time }}
                 </td>
-                <td>{{ 0 }}</td>
+                <td>{{ duration[entry.time_id] }}</td>
                 <td>{{ entry.description }}</td>
                 <td>
                     <button class="btn btn-outline-primary btn-sm">Edit</button>
@@ -38,6 +38,14 @@
                 <td colspan="6">No entries</td>
             </tr>
         {% endfor %}
+        <tfoot>
+        <tr>
+            <th>Total Duration</th>
+            <td colspan="2"></td>
+            <td>{{ total_duration }}</td>
+            <td colspan="2"></td>
+        </tr>
+        </tfoot>
         </tbody>
     </table>
 {% endblock %}

@@ -4,6 +4,7 @@ from flask import Flask, render_template, flash, redirect, url_for, abort, reque
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from flask_debugtoolbar import DebugToolbarExtension
 
+import pendulum
 
 from user import User
 from forms import LoginForm, SignupForm, TimeEntryForm, CourseForm, ProjectForm, course_choices, TeamForm, \
@@ -21,7 +22,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-#app.debug = True
+app.debug = True
 toolbar = DebugToolbarExtension(app)
 
 
@@ -125,15 +126,36 @@ def settings():
     return "ZOWIE"
 
 
+def calculate_duration(time_entry):
+    start_dt = pendulum.combine(time_entry['start_date'], time_entry['start_time'])
+    stop_dt = pendulum.combine(time_entry['stop_date'], time_entry['stop_time'])
+    delta = stop_dt - start_dt
+    print(start_dt, stop_dt, delta)
+    return delta
+
+
 @app.route('/time-sheet')
 @login_required
 def time_sheet():
-    return render_template('time/sheet.html', entries = db.read_time_entries(current_user.id))
+    time_entries = db.read_time_entries(current_user.id)
+    total_duration = None
+    duration = {}
+    for time_entry in time_entries:
+        entry_duration = calculate_duration(time_entry)
+        if total_duration is None:
+            total_duration = entry_duration
+        else:
+            total_duration += entry_duration
+        duration[time_entry['time_id']] = entry_duration
+    return render_template('time/sheet.html',
+                           entries=time_entries,
+                           duration=duration,
+                           total_duration=total_duration)
 
 
 @app.route('/time-entry', methods=['GET', 'POST'])
 @login_required
-def time_entry():
+def enter_time():
     time_entry_form = TimeEntryForm()
 
     choices = project_choices(current_user.id)
@@ -206,7 +228,7 @@ def all_teams():
     return render_template('teams/all.html', teams=db.read_all_teams())
 
 
-@app.route('/teams/<team_id>')
+@app.route('/teams/<int:team_id>')
 @login_required
 def team_details(team_id):
     return render_template('teams/details.html',
