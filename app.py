@@ -5,6 +5,7 @@ from flask_login import LoginManager, login_required, login_user, logout_user, c
 from flask_debugtoolbar import DebugToolbarExtension
 
 import pendulum
+pendulum.set_formatter('alternative')
 
 from user import User
 from forms import LoginForm, SignupForm, TimeEntryForm, CourseForm, ProjectForm, course_choices, TeamForm, \
@@ -126,30 +127,39 @@ def settings():
     return "ZOWIE"
 
 
-def calculate_duration(time_entry):
+def combine_dates_times(time_entry):
     start_dt = pendulum.combine(time_entry['start_date'], time_entry['start_time'])
     stop_dt = pendulum.combine(time_entry['stop_date'], time_entry['stop_time'])
-    delta = stop_dt - start_dt
-    print(start_dt, stop_dt, delta)
-    return delta
+    return start_dt, stop_dt
+
+
+def format_dates_times(start_dt, stop_dt):
+    result = start_dt.format('M-D h:mm A') + " -"
+    if start_dt.date() != stop_dt.date():
+        result += stop_dt.format(' M-D')
+    result += stop_dt.format(' h:mm A')
+    return result
 
 
 @app.route('/time-sheet')
 @login_required
 def time_sheet():
-    time_entries = db.read_time_entries(current_user.id)
+    entries = []
     total_duration = None
-    duration = {}
-    for time_entry in time_entries:
-        entry_duration = calculate_duration(time_entry)
+    for time_entry in db.read_time_entries(current_user.id):
+        (start_dt, stop_dt) = combine_dates_times(time_entry)
+        duration = stop_dt - start_dt
+        entries.append({ 'time_id': time_entry['time_id'],
+                         'project_name': time_entry['project_name'],
+                         'description': time_entry['description'],
+                         'start_stop_dt': format_dates_times(start_dt, stop_dt),
+                         'duration': duration})
         if total_duration is None:
-            total_duration = entry_duration
+            total_duration = duration
         else:
-            total_duration += entry_duration
-        duration[time_entry['time_id']] = entry_duration
+            total_duration += duration
     return render_template('time/sheet.html',
-                           entries=time_entries,
-                           duration=duration,
+                           entries=entries,
                            total_duration=total_duration)
 
 

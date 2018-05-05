@@ -266,7 +266,7 @@ def read_members_by_team_id(team_id):
 # Time
 def read_time_entries(account_id=None):
     """Read time entries for the given account or all entries (default)"""
-    base_query = """
+    query = """
         SELECT
           time.id      AS time_id,
           account_id,
@@ -280,11 +280,10 @@ def read_time_entries(account_id=None):
         FROM time
           INNER JOIN project ON time.project_id = project.id
     """
-    if account_id is None:
-        g.cursor.execute(base_query)
-    else:
-        query = base_query + "WHERE account_id = %(account_id)s"
-        g.cursor.execute(query, {'account_id': account_id})
+    if account_id is not None:
+        query += "WHERE account_id = %(account_id)s"
+    query += "ORDER BY project_name, start_date, start_time"
+    g.cursor.execute(query, {'account_id': account_id})
     return g.cursor.fetchall()
 
 
