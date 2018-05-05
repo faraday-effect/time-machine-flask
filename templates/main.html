@@ -11,17 +11,32 @@
                 </a>
                 <ul class="nav">
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('enter_time') }}">Time Entry</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('all_courses') }}">Courses</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('all_teams') }}">Teams</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('all_projects') }}">Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('all_accounts') }}">Accounts</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#"
-                               id="navbarDropdown" role="button" data-toggle="dropdown">
+                               id="timeDropdown" role="button" data-toggle="dropdown">Time</a>
+                            <div class="dropdown-menu" aria-labeledby="timeDropdown">
+                                <a class="dropdown-item" href="{{ url_for('index') }}">Time Sheet</a>
+                                <a class="dropdown-item" href="{{ url_for('enter_time') }}">Time Entry</a>
+                            </div>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#"
+                               id="adminDropdown" role="button" data-toggle="dropdown">Admin</a>
+                            <div class="dropdown-menu" aria-labeledby="adminDropdown">
+                                <a class="nav-link" href="{{ url_for('all_courses') }}">Courses</a>
+                                <a class="nav-link" href="{{ url_for('all_teams') }}">Teams</a>
+                                <a class="nav-link" href="{{ url_for('all_projects') }}">Projects</a>
+                                <a class="nav-link" href="{{ url_for('all_accounts') }}">Accounts</a>
+                            </div>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#"
+                               id="accountDropdown" role="button" data-toggle="dropdown">
                                 Welcome, {{ current_user.first_name }}
                             </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <div class="dropdown-menu" aria-labelledby="accountDropdown">
                                 <a class="dropdown-item" href="{{ url_for('settings') }}">Settings</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ url_for('logout') }}">Log Out</a>

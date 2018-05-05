@@ -264,6 +264,25 @@ def read_members_by_team_id(team_id):
 
 
 # Time
+def create_time_entry(time_entry_info):
+    query = """
+        INSERT INTO public.time (description, project_id, account_id, 
+          start_date, start_time, 
+          stop_date, stop_time)
+        VALUES (%(description)s, %(project_id)s, %(user_id)s, 
+          %(start_date)s, %(start_time)s, 
+          %(stop_date)s, %(stop_time)s)
+    """
+    g.cursor.execute(query, time_entry_info)
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+def read_time_entry(time_id):
+    g.cursor.execute('SELECT * FROM time WHERE id=%(time_id)s', {'time_id': time_id})
+    return g.cursor.fetchone()
+
+
 def read_time_entries(account_id=None):
     """Read time entries for the given account or all entries (default)"""
     query = """
@@ -287,15 +306,7 @@ def read_time_entries(account_id=None):
     return g.cursor.fetchall()
 
 
-def create_time_entry(time_entry_info):
-    query = """
-        INSERT INTO public.time (description, project_id, account_id, 
-          start_date, start_time, 
-          stop_date, stop_time)
-        VALUES (%(description)s, %(project_id)s, %(user_id)s, 
-          %(start_date)s, %(start_time)s, 
-          %(stop_date)s, %(stop_time)s)
-    """
-    g.cursor.execute(query, time_entry_info)
+def delete_time_entry(time_id):
+    g.cursor.execute('DELETE FROM time WHERE id=%(time_id)s', {'time_id': time_id})
     g.connection.commit()
     return g.cursor.rowcount

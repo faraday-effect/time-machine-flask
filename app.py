@@ -23,7 +23,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-app.debug = True
+#app.debug = True
 toolbar = DebugToolbarExtension(app)
 
 
@@ -134,11 +134,12 @@ def combine_dates_times(time_entry):
 
 
 def format_dates_times(start_dt, stop_dt):
-    result = start_dt.format('M-D h:mm A') + " -"
+    start_str = start_dt.format('MMM D h:mm A')
+    stop_str = ''
     if start_dt.date() != stop_dt.date():
-        result += stop_dt.format(' M-D')
-    result += stop_dt.format(' h:mm A')
-    return result
+        stop_str += stop_dt.format(' MMM D')
+    stop_str += stop_dt.format(' h:mm A')
+    return start_str, stop_str
 
 
 @app.route('/time-sheet')
@@ -148,11 +149,13 @@ def time_sheet():
     total_duration = None
     for time_entry in db.read_time_entries(current_user.id):
         (start_dt, stop_dt) = combine_dates_times(time_entry)
+        (start_str, stop_str) = format_dates_times(start_dt, stop_dt)
         duration = stop_dt - start_dt
         entries.append({ 'time_id': time_entry['time_id'],
                          'project_name': time_entry['project_name'],
                          'description': time_entry['description'],
-                         'start_stop_dt': format_dates_times(start_dt, stop_dt),
+                         'start_str': start_str,
+                         'stop_str': stop_str,
                          'duration': duration})
         if total_duration is None:
             total_duration = duration
@@ -163,7 +166,7 @@ def time_sheet():
                            total_duration=total_duration)
 
 
-@app.route('/time-entry', methods=['GET', 'POST'])
+@app.route('/time-entry/create', methods=['GET', 'POST'])
 @login_required
 def enter_time():
     time_entry_form = TimeEntryForm()
@@ -187,6 +190,18 @@ def enter_time():
         else:
             flash("Problem adding time")
     return render_template('time/entry.html', form=time_entry_form)
+
+
+@app.route('/time-entry/delete', methods=['POST'])
+@login_required
+def delete_time():
+    time_id = request.form['time_id']
+    row_count = db.delete_time_entry(time_id)
+    if row_count == 1:
+        return "OK"
+    else:
+        print("Failed to delete time {}".format(time_id))
+        return "FAIL"
 
 
 @app.route('/courses/all')
