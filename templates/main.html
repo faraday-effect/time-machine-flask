@@ -14,15 +14,20 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('index') }}">View Time Sheet</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('enter_time') }}">Enter Time</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#"
+                               id="timeEntryDropdown" data-toggle="dropdown">Enter Time</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ url_for('enter_detailed_time') }}">Detailed</a>
+                                <a class="dropdown-item" href="{{ url_for('enter_bulk_time') }}">Bulk</a>
+                            </div>
                         </li>
 
                         {% if current_user.is_superuser %}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#"
-                                   id="adminDropdown" role="button" data-toggle="dropdown">Manage</a>
-                                <div class="dropdown-menu" aria-labeledby="adminDropdown">
+                                   id="adminDropdown" data-toggle="dropdown">Manage</a>
+                                <div class="dropdown-menu">
                                     <a class="dropdown-item" href="{{ url_for('all_courses') }}">Courses</a>
                                     <a class="dropdown-item" href="{{ url_for('all_teams') }}">Teams</a>
                                     <a class="dropdown-item" href="{{ url_for('all_projects') }}">Projects</a>

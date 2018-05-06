@@ -1,20 +1,15 @@
 {% extends 'main.html' %}
 
-{% block title %}Time Entry{% endblock %}
+{% block title %}Detailed Time Entry{% endblock %}
 
 {% block content %}
+    <h1 class="my-2">Enter Time</h1>
     <form method="POST">
         {{ form.csrf_token }}
         <div class="form-row">
             <div class="form-group col-4">
                 {{ form.project_id.label }}
                 {{ form.project_id(class_="form-control") }}
-            </div>
-            <div class="col">
-                <div class="form-check">
-                    {{ form.detailed(class_="form-check-input") }}
-                    {{ form.detailed.label }}
-                </div>
             </div>
         </div>
         <div class="form-row">
@@ -59,9 +54,15 @@
 
 {% block local_javascript %}
     <script>
-        {# Detailed vs. summary #}
-        $('#detailed').click(function() {
-            console.log("CHECKED", $('#detailed').is(':checked'));
+        {# Initialize form #}
+        $(function () {
+            var current_date = moment().format('YYYY-MM-DD');
+            var current_time = moment().format('HH:MM');
+
+            $('#start_date').val(current_date);
+            $('#stop_date').val(current_date);
+            $('#start_time').val(current_time);
+            $('#stop_time').val(current_time);
         });
 
         {# Update end date/time when start changes. #}
@@ -74,6 +75,7 @@
         });
 
         {# Calculate the time difference #}
+
         function compute_time_difference() {
             var start_dt = moment($("#start_date").val() + " " + $("#start_time").val());
             var stop_dt = moment($("#stop_date").val() + " " + $("#stop_time").val());
@@ -81,11 +83,13 @@
         }
 
         {# Format the difference in readable form #}
+
         function format_difference(difference) {
             return moment.duration(difference, 'minutes').format("d [d] h [h] m [m]");
         }
 
         {# Update the UI #}
+
         function update_controls() {
             var time_difference = compute_time_difference();
             var description_length = $('#description').val().length;
@@ -107,5 +111,4 @@
             update_controls();
         });
     </script>
-
 {% endblock %}

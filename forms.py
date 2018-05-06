@@ -1,8 +1,7 @@
-import pendulum
-
 from flask_wtf import FlaskForm
 from markupsafe import Markup
-from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField, BooleanField
+from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField, BooleanField, FieldList, \
+    FormField
 from wtforms.fields.html5 import DateField, TimeField
 from wtforms.validators import Email, InputRequired, EqualTo
 
@@ -52,15 +51,26 @@ class TeamForm(FlaskForm):
     submit = SubmitField()
 
 
-class TimeEntryForm(FlaskForm):
+class DetailedTimeForm(FlaskForm):
     project_id = SelectField('Project', coerce=int)
-    detailed = BooleanField('Detailed', default=True)
     start_date = DateField('Start Date')
     start_time = TimeField('Start Time')
     stop_date = DateField('Stop Date')
     stop_time = TimeField('Stop Time')
     description = StringField('Description')
     submit = SubmitField('Add Time Entry')
+
+
+class _BulkTimeEntry(FlaskForm):
+    date = DateField('Date')
+    duration = StringField('Duration')
+    description = StringField('Description')
+
+
+class BulkTimeForm(FlaskForm):
+    project_id = SelectField('Project', coerce=int)
+    entries = FieldList(FormField(_BulkTimeEntry), min_entries=5)
+    submit = SubmitField('Add All Entries')
 
 
 def course_choices():

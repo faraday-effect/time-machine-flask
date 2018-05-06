@@ -1,0 +1,24 @@
+{% extends 'main.html' %}
+
+{% block title %}Bulk Time Entry{% endblock %}
+
+{% block content %}
+    <h1 class="my-2">Enter Time</h1>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <div class="form-row">
+            <div class="form-group col-4">
+                {{ form.project_id.label }}
+                {{ form.project_id(class_="form-control") }}
+            </div>
+        </div>
+        {{ form.entries.label }}
+        {{ form.entries() }}
+        {{ form.submit(class_="btn btn-primary", disabled=True) }}
+    </form>
+{% endblock %}
+
+{% block local_javascript %}
+    <script>
+    </script>
+{% endblock %}

@@ -9,8 +9,8 @@ import pendulum
 pendulum.set_formatter('alternative')
 
 from user import User
-from forms import LoginForm, SignupForm, TimeEntryForm, CourseForm, ProjectForm, course_choices, TeamForm, \
-    project_choices, team_choices
+from forms import LoginForm, SignupForm, DetailedTimeForm, CourseForm, ProjectForm, course_choices, TeamForm, \
+    project_choices, team_choices, BulkTimeForm
 
 import db
 
@@ -187,10 +187,26 @@ def time_sheet():
                            total_duration=total_duration)
 
 
-@app.route('/time-entry/create', methods=['GET', 'POST'])
+@app.route('/time-entry/bulk', methods=['GET', 'POST'])
 @login_required
-def enter_time():
-    time_entry_form = TimeEntryForm()
+def enter_bulk_time():
+    time_entry_form = BulkTimeForm()
+
+    # TODO: Refactor to eliminate redundancy with detailed time entry.
+    choices = project_choices(current_user.id)
+    if len(choices) < 1:
+        flash('You are not assigned to any projects')
+    time_entry_form.project_id.choices = choices
+
+    if time_entry_form.validate_on_submit():
+        pass
+    return render_template('time/entry-bulk.html', form=time_entry_form)
+
+
+@app.route('/time-entry/detailed', methods=['GET', 'POST'])
+@login_required
+def enter_detailed_time():
+    time_entry_form = DetailedTimeForm()
 
     choices = project_choices(current_user.id)
     if len(choices) < 1:
@@ -210,7 +226,7 @@ def enter_time():
             return redirect(url_for('time_sheet'))
         else:
             flash("Problem adding time")
-    return render_template('time/entry.html', form=time_entry_form)
+    return render_template('time/entry-detailed.html', form=time_entry_form)
 
 
 @app.route('/time-entry/delete', methods=['POST'])

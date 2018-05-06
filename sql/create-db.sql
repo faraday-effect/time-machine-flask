@@ -85,20 +85,21 @@ CREATE UNIQUE INDEX user_email_uindex
 
 CREATE TABLE time
 (
-  id          SERIAL       NOT NULL
+  id            SERIAL       NOT NULL
     CONSTRAINT time_pkey
     PRIMARY KEY,
-  description VARCHAR(100) NOT NULL,
-  project_id  INTEGER      NOT NULL
+  description   VARCHAR(100) NOT NULL,
+  project_id    INTEGER      NOT NULL
     CONSTRAINT time_project_id_fk
     REFERENCES project,
-  account_id  INTEGER      NOT NULL
+  account_id    INTEGER      NOT NULL
     CONSTRAINT time_user_id_fk
     REFERENCES account,
-  start_date  DATE         NOT NULL,
-  start_time  TIME         NOT NULL,
-  stop_date   DATE         NOT NULL,
-  stop_time   TIME         NOT NULL
+  start_date    DATE         NOT NULL,
+  start_time    TIME         NOT NULL,
+  stop_date     DATE         NOT NULL,
+  stop_time     TIME         NOT NULL,
+  is_bulk_entry BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE role
