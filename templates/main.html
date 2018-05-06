@@ -9,35 +9,41 @@
                          height="50" alt="Dali was weird">
                     Time Machine
                 </a>
-                <ul class="nav">
+                <ul class="navbar-nav mr-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('index') }}">View Time Sheet</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('enter_time') }}">Enter Time</a>
+                        </li>
+
+                        {% if current_user.is_superuser %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#"
+                                   id="adminDropdown" role="button" data-toggle="dropdown">Manage</a>
+                                <div class="dropdown-menu" aria-labeledby="adminDropdown">
+                                    <a class="dropdown-item" href="{{ url_for('all_courses') }}">Courses</a>
+                                    <a class="dropdown-item" href="{{ url_for('all_teams') }}">Teams</a>
+                                    <a class="dropdown-item" href="{{ url_for('all_projects') }}">Projects</a>
+                                    <a class="dropdown-item" href="{{ url_for('all_accounts') }}">Accounts</a>
+                                </div>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#"
-                               id="timeDropdown" role="button" data-toggle="dropdown">Time</a>
-                            <div class="dropdown-menu" aria-labeledby="timeDropdown">
-                                <a class="dropdown-item" href="{{ url_for('index') }}">Time Sheet</a>
-                                <a class="dropdown-item" href="{{ url_for('enter_time') }}">Time Entry</a>
-                            </div>
-                        </li>
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#"
-                               id="adminDropdown" role="button" data-toggle="dropdown">Admin</a>
-                            <div class="dropdown-menu" aria-labeledby="adminDropdown">
-                                <a class="nav-link" href="{{ url_for('all_courses') }}">Courses</a>
-                                <a class="nav-link" href="{{ url_for('all_teams') }}">Teams</a>
-                                <a class="nav-link" href="{{ url_for('all_projects') }}">Projects</a>
-                                <a class="nav-link" href="{{ url_for('all_accounts') }}">Accounts</a>
-                            </div>
-                        </li>
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#"
-                               id="accountDropdown" role="button" data-toggle="dropdown">
-                                Welcome, {{ current_user.first_name }}
+                               id="accountDropdown" role="button"
+                               data-toggle="dropdown">
+                                {{ current_user.first_name }}
                             </a>
                             <div class="dropdown-menu" aria-labelledby="accountDropdown">
-                                <a class="dropdown-item" href="{{ url_for('settings') }}">Settings</a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('account_details', account_id=current_user.id) }}">Your Account</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ url_for('logout') }}">Log Out</a>
                             </div>
@@ -48,7 +54,7 @@
         </header>
 
         {% for message in get_flashed_messages() %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <div class="alert alert-warning alert-dismissible fade show my-2" role="alert">
                 {{ message }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>

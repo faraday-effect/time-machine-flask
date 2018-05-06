@@ -1,4 +1,5 @@
 from urllib.parse import urlparse, urljoin
+from functools import wraps
 
 from flask import Flask, render_template, flash, redirect, url_for, abort, request
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
@@ -41,6 +42,28 @@ def teardown_request(exception):
 def load_user(email):
     # Returns None if `email` is bogus.
     return User.read(email)
+
+
+def account_access_ok(account_id):
+    return current_user.is_superuser or current_user.id == account_id
+
+
+def deny_access():
+    flash("You don't have access to this function.")
+    return redirect(url_for('index'))
+
+
+# Based on http://flask.pocoo.org/snippets/98/
+def superuser_required():
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if current_user.is_superuser:
+                return f(*args, **kwargs)
+            else:
+                return deny_access()
+        return wrapped
+    return wrapper
 
 
 @app.route('/')
@@ -109,6 +132,7 @@ def signup():
 
 @app.route('/accounts/all')
 @login_required
+@superuser_required()
 def all_accounts():
     return render_template('accounts/all.html', accounts=db.read_all_accounts())
 
@@ -116,15 +140,12 @@ def all_accounts():
 @app.route('/accounts/<int:account_id>')
 @login_required
 def account_details(account_id):
-    return render_template('accounts/details.html',
-                           account=db.read_account_by_id(account_id),
-                           teams=db.read_teams_by_account_id(account_id))
-
-
-@app.route('/settings')
-@login_required
-def settings():
-    return "ZOWIE"
+    if not account_access_ok(account_id):
+        return deny_access()
+    else:
+        return render_template('accounts/details.html',
+                               account=db.read_account_by_id(account_id),
+                               teams=db.read_teams_by_account_id(account_id))
 
 
 def combine_dates_times(time_entry):
@@ -206,12 +227,14 @@ def delete_time():
 
 @app.route('/courses/all')
 @login_required
+@superuser_required()
 def all_courses():
     return render_template('courses/all.html', courses=db.read_all_courses())
 
 
 @app.route('/courses/create', methods=['GET', 'POST'])
 @login_required
+@superuser_required()
 def create_course():
     course_form = CourseForm()
     course_form.semester_id.choices = [(row['id'], row['name']) for row in db.read_all_semesters()]
@@ -228,6 +251,7 @@ def create_course():
 
 @app.route('/projects/create', methods=['GET', 'POST'])
 @login_required
+@superuser_required()
 def create_project():
     project_form = ProjectForm()
     project_form.course_id.choices = course_choices()
@@ -243,18 +267,21 @@ def create_project():
 
 @app.route('/projects/all')
 @login_required
+@superuser_required()
 def all_projects():
     return render_template('projects/all.html', projects=db.read_all_projects())
 
 
 @app.route('/teams/all')
 @login_required
+@superuser_required()
 def all_teams():
     return render_template('teams/all.html', teams=db.read_all_teams())
 
 
 @app.route('/teams/<int:team_id>')
 @login_required
+@superuser_required()
 def team_details(team_id):
     return render_template('teams/details.html',
                            details=db.read_team_by_id(team_id),
@@ -263,6 +290,7 @@ def team_details(team_id):
 
 @app.route('/teams/create', methods=['GET', 'POST'])
 @login_required
+@superuser_required()
 def create_team():
     team_form = TeamForm()
     team_form.course_id.choices = course_choices()

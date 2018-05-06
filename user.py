@@ -1,7 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-from db import read_account_by_email, create_account
+import db
 
 
 class User(UserMixin):
@@ -10,11 +10,11 @@ class User(UserMixin):
         self.first_name = self.last_name = None
         self.email = None
         self.password_hash = None
-        self.superuser = False
+        self.is_superuser = False
 
     @classmethod
     def create(cls, first_name, last_name, email, password):
-        new_account = create_account({
+        new_account = db.create_account({
             'first_name': first_name,
             'last_name': last_name,
             'email': email,
@@ -27,14 +27,14 @@ class User(UserMixin):
             self.last_name = new_account['last_name']
             self.email = new_account['email']
             self.password_hash = new_account['password_hash']
-            self.superuser = new_account['superuser']
+            self.is_superuser = new_account['is_superuser']
             return self
         else:
             return None
 
     @classmethod
     def read(cls, email):
-        result = read_account_by_email(email)
+        result = db.read_account_by_email(email)
         if result is not None:
             self = cls()
             self.id = result['id']
@@ -42,6 +42,7 @@ class User(UserMixin):
             self.last_name = result['last_name']
             self.email = result['email']
             self.password_hash = result['password_hash']
+            self.is_superuser = result['is_superuser']
             return self
         else:
             return None

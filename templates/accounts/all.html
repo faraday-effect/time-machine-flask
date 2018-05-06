@@ -28,12 +28,14 @@
                 </td>
                 <td>{{ account.first_name }}</td>
                 <td>{{ account.last_name }}</td>
-                <td>{{ account.superuser }}</td>
+                <td>{{ account.is_superuser }}</td>
                 <td>{{ account.team_name }}</td>
                 <td>{{ account.role_name }}</td>
                 <td>
-                    <a class="btn btn-sm btn-outline-secondary" href="#">Edit</a>
-                    <a class="btn btn-sm btn-outline-secondary" href="#">Deactivate</a>
+                    <a class="btn btn-sm btn-outline-primary" href="#">Edit</a>
+                    {% if not account.is_superuser %}
+                        <a class="btn btn-sm btn-outline-danger" href="#">Deactivate</a>
+                    {% endif %}
                 </td>
             </tr>
         {% else %}

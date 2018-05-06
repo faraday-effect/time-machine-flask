@@ -10,6 +10,12 @@
                 {{ form.project_id.label }}
                 {{ form.project_id(class_="form-control") }}
             </div>
+            <div class="col">
+                <div class="form-check">
+                    {{ form.detailed(class_="form-check-input") }}
+                    {{ form.detailed.label }}
+                </div>
+            </div>
         </div>
         <div class="form-row">
             <div class="col">
@@ -53,6 +59,11 @@
 
 {% block local_javascript %}
     <script>
+        {# Detailed vs. summary #}
+        $('#detailed').click(function() {
+            console.log("CHECKED", $('#detailed').is(':checked'));
+        });
+
         {# Update end date/time when start changes. #}
         $('#start_date').change(function () {
             $('#stop_date').val($(this).val());

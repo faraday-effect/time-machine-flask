@@ -47,7 +47,7 @@ CREATE TABLE sprint
     PRIMARY KEY,
   name       VARCHAR(40) NOT NULL,
   start_date DATE        NOT NULL,
-  stop_date   DATE        NOT NULL,
+  stop_date  DATE        NOT NULL,
   project_id INTEGER     NOT NULL
     CONSTRAINT sprint_project_id_fk
     REFERENCES project
@@ -76,7 +76,8 @@ CREATE TABLE account
   last_name     VARCHAR(40)           NOT NULL,
   email         VARCHAR(80)           NOT NULL,
   password_hash VARCHAR(255)          NOT NULL,
-  superuser     BOOLEAN DEFAULT FALSE NOT NULL
+  is_active     BOOLEAN DEFAULT TRUE  NOT NULL,
+  is_superuser  BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 CREATE UNIQUE INDEX user_email_uindex
@@ -96,8 +97,8 @@ CREATE TABLE time
     REFERENCES account,
   start_date  DATE         NOT NULL,
   start_time  TIME         NOT NULL,
-  stop_date    DATE         NOT NULL,
-  stop_time    TIME         NOT NULL
+  stop_date   DATE         NOT NULL,
+  stop_time   TIME         NOT NULL
 );
 
 CREATE TABLE role
@@ -105,6 +106,7 @@ CREATE TABLE role
   id         SERIAL                NOT NULL
     CONSTRAINT role_pkey
     PRIMARY KEY,
+  key        VARCHAR(32)           NOT NULL,
   name       VARCHAR(64)           NOT NULL,
   is_default BOOLEAN DEFAULT FALSE NOT NULL
 );
