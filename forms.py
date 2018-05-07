@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
 from markupsafe import Markup
-from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField, BooleanField, FieldList, \
-    FormField
+from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField, FieldList, FormField
 from wtforms.fields.html5 import DateField, TimeField
-from wtforms.validators import Email, InputRequired, EqualTo
+from wtforms.validators import Email, InputRequired, EqualTo, Optional, Regexp
 
 import db
 
@@ -51,25 +50,29 @@ class TeamForm(FlaskForm):
     submit = SubmitField()
 
 
+# I wanted to call the `desc` field `description`, but that appears to cause problems with the `FieldList`
+# because `description` is a named parameter of the underlying `Field` constructor.
 class DetailedTimeForm(FlaskForm):
     project_id = SelectField('Project', coerce=int)
     start_date = DateField('Start Date')
     start_time = TimeField('Start Time')
     stop_date = DateField('Stop Date')
     stop_time = TimeField('Stop Time')
-    description = StringField('Description')
+    desc = StringField('Description')
     submit = SubmitField('Add Time Entry')
 
 
-class _BulkTimeEntry(FlaskForm):
-    date = DateField('Date')
-    duration = StringField('Duration')
-    description = StringField('Description')
+class BulkTimeEntry(FlaskForm):
+    date = DateField('Date', validators=[Optional()])
+    duration = StringField('Duration',
+                           render_kw={'placeholder': 'HH:MM'},
+                           validators=[Optional(), Regexp(r'\d{1,2}:\d{2}')])
+    desc = StringField('Description')
 
 
 class BulkTimeForm(FlaskForm):
     project_id = SelectField('Project', coerce=int)
-    entries = FieldList(FormField(_BulkTimeEntry), min_entries=5)
+    entries = FieldList(FormField(BulkTimeEntry), min_entries=5)
     submit = SubmitField('Add All Entries')
 
 

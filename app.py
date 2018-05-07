@@ -24,7 +24,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-#app.debug = True
+app.debug = True
 toolbar = DebugToolbarExtension(app)
 
 
@@ -192,6 +192,9 @@ def time_sheet():
 def enter_bulk_time():
     time_entry_form = BulkTimeForm()
 
+    from pprint import pprint
+    pprint(time_entry_form.data)
+
     # TODO: Refactor to eliminate redundancy with detailed time entry.
     choices = project_choices(current_user.id)
     if len(choices) < 1:
@@ -219,7 +222,7 @@ def enter_detailed_time():
             'user_id': current_user.id,
             'start_date': time_entry_form.start_date.data, 'start_time': time_entry_form.start_time.data,
             'stop_date': time_entry_form.stop_date.data, 'stop_time': time_entry_form.stop_time.data,
-            'description': time_entry_form.description.data
+            'description': time_entry_form.desc.data
         })
         if rowcount == 1:
             flash("Added time successfully")

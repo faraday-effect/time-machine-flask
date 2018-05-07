@@ -4,6 +4,7 @@
 
 {% block content %}
     <h1 class="my-2">Enter Time</h1>
+    {% include "_form_errors.html" %}
     <form method="POST">
         {{ form.csrf_token }}
         <div class="form-row">
@@ -12,9 +13,39 @@
                 {{ form.project_id(class_="form-control") }}
             </div>
         </div>
-        {{ form.entries.label }}
-        {{ form.entries() }}
-        {{ form.submit(class_="btn btn-primary", disabled=True) }}
+
+        {% for entry in form.entries %}
+            <input id="entries-{{ loop.index0 }}-csrf_token" name="entries-{{ loop.index0 }}-csrf_token" type="hidden"
+                   value="{{ form.csrf_token.current_token }}">
+            <div class="form-row">
+                <div class="col-3">
+                    <div class="form-group">
+                        {% if loop.first %}
+                            {{ entry.date.label }}
+                        {% endif %}
+                        {{ entry.date(class_="form-control") }}
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="form-group">
+                        {% if loop.first %}
+                            {{ entry.duration.label }}
+                        {% endif %}
+                        {{ entry.duration(class_="form-control") }}
+                    </div>
+                </div>
+                <div class="col-7">
+                    <div class="form-group">
+                        {% if loop.first %}
+                            {{ entry.desc.label }}
+                        {% endif %}
+                        {{ entry.desc(class_="form-control") }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        {{ form.submit(class_="btn btn-primary") }}
     </form>
 {% endblock %}
 
