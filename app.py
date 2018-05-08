@@ -1,3 +1,5 @@
+import math
+from pprint import pprint
 from urllib.parse import urlparse, urljoin
 from functools import wraps
 
@@ -6,6 +8,8 @@ from flask_login import LoginManager, login_required, login_user, logout_user, c
 from flask_debugtoolbar import DebugToolbarExtension
 
 import pendulum
+from wtforms import ValidationError
+
 pendulum.set_formatter('alternative')
 
 from user import User
@@ -62,7 +66,9 @@ def superuser_required():
                 return f(*args, **kwargs)
             else:
                 return deny_access()
+
         return wrapped
+
     return wrapper
 
 
@@ -172,12 +178,12 @@ def time_sheet():
         (start_dt, stop_dt) = combine_dates_times(time_entry)
         (start_str, stop_str) = format_dates_times(start_dt, stop_dt)
         duration = stop_dt - start_dt
-        entries.append({ 'time_id': time_entry['time_id'],
-                         'project_name': time_entry['project_name'],
-                         'description': time_entry['description'],
-                         'start_str': start_str,
-                         'stop_str': stop_str,
-                         'duration': duration})
+        entries.append({'time_id': time_entry['time_id'],
+                        'project_name': time_entry['project_name'],
+                        'description': time_entry['description'],
+                        'start_str': start_str,
+                        'stop_str': stop_str,
+                        'duration': duration})
         if total_duration is None:
             total_duration = duration
         else:
@@ -187,13 +193,22 @@ def time_sheet():
                            total_duration=total_duration)
 
 
+def fractional_hours_to_time(frac_hours):
+    if frac_hours < 0 or frac_hours >= 24:
+        raise ValidationError('Fractional hours out of range [0, 24)')
+    fraction, hours = math.modf(frac_hours)
+    return pendulum.time(hour=int(fraction), minute=int(60 * fraction))
+
+
+def sequenced_field_name(name, seq):
+    return "{}-{}".format(name, seq)
+
+
 @app.route('/time-entry/bulk', methods=['GET', 'POST'])
 @login_required
 def enter_bulk_time():
     time_entry_form = BulkTimeForm()
-
-    from pprint import pprint
-    pprint(time_entry_form.data)
+    BULK_ENTRY_COUNT = 11
 
     # TODO: Refactor to eliminate redundancy with detailed time entry.
     choices = project_choices(current_user.id)
@@ -202,8 +217,27 @@ def enter_bulk_time():
     time_entry_form.project_id.choices = choices
 
     if time_entry_form.validate_on_submit():
-        pass
-    return render_template('time/entry-bulk.html', form=time_entry_form)
+
+        entries = [{
+            'date': request.form[sequenced_field_name('date', idx)],
+            'duration': request.form[sequenced_field_name('duration', idx)],
+            'description': request.form[sequenced_field_name('description', idx)]
+        } for idx in range(BULK_ENTRY_COUNT)]
+
+        pprint(request.form)
+        pprint(entries)
+
+        # print({
+        #     'project_id': time_entry_form.project_id.data,
+        #     'user_id': current_user.id,
+        #     'start_date': entry.date.data, 'stop_date': entry.date.data,
+        #     'start_time': pendulum.time(hour=0),
+        #     'stop_time': fractional_hours_to_time(entry.duration.data),
+        #     'description': entry.desc.data,
+        #     'is_bulk_entry': True
+        # })
+
+    return render_template('time/entry-bulk.html', form=time_entry_form, entry_count=BULK_ENTRY_COUNT)
 
 
 @app.route('/time-entry/detailed', methods=['GET', 'POST'])
@@ -222,7 +256,8 @@ def enter_detailed_time():
             'user_id': current_user.id,
             'start_date': time_entry_form.start_date.data, 'start_time': time_entry_form.start_time.data,
             'stop_date': time_entry_form.stop_date.data, 'stop_time': time_entry_form.stop_time.data,
-            'description': time_entry_form.desc.data
+            'description': time_entry_form.desc.data,
+            'is_bulk_entry': False
         })
         if rowcount == 1:
             flash("Added time successfully")

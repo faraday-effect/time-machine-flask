@@ -14,42 +14,28 @@
             </div>
         </div>
 
-        {% for entry in form.entries %}
-            <input id="entries-{{ loop.index0 }}-csrf_token" name="entries-{{ loop.index0 }}-csrf_token" type="hidden"
-                   value="{{ form.csrf_token.current_token }}">
+        {# Headings #}
+        <div class="form-row">
+            <div class="col-3">Date</div>
+            <div class="col-2">Duration</div>
+            <div class="col-7">Description</div>
+        </div>
+
+        {% for idx in range(entry_count) %}
             <div class="form-row">
                 <div class="col-3">
-                    <div class="form-group">
-                        {% if loop.first %}
-                            {{ entry.date.label }}
-                        {% endif %}
-                        {{ entry.date(class_="form-control") }}
-                    </div>
+                    <input class="form-control" id="date-{{ idx }}" name="date-{{ idx }}" type="date" value>
                 </div>
                 <div class="col-2">
-                    <div class="form-group">
-                        {% if loop.first %}
-                            {{ entry.duration.label }}
-                        {% endif %}
-                        {{ entry.duration(class_="form-control") }}
-                    </div>
+                    <input class="form-control" id="duration-{{ idx }}" name="duration-{{ idx }}"
+                           placeholder="e.g. 1.75" type="text" value=>
                 </div>
                 <div class="col-7">
-                    <div class="form-group">
-                        {% if loop.first %}
-                            {{ entry.desc.label }}
-                        {% endif %}
-                        {{ entry.desc(class_="form-control") }}
-                    </div>
+                    <input class="form-control" id="description-{{ idx }}" name="description-{{ idx }}" type="text" value>
                 </div>
             </div>
         {% endfor %}
 
         {{ form.submit(class_="btn btn-primary") }}
     </form>
-{% endblock %}
-
-{% block local_javascript %}
-    <script>
-    </script>
 {% endblock %}

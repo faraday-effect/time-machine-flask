@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from markupsafe import Markup
-from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField, FieldList, FormField
+from wtforms import SubmitField, StringField, PasswordField, HiddenField, SelectField, FieldList, FormField, \
+    DecimalField, FloatField
 from wtforms.fields.html5 import DateField, TimeField
-from wtforms.validators import Email, InputRequired, EqualTo, Optional, Regexp
+from wtforms.validators import Email, InputRequired, EqualTo, Optional, Regexp, NumberRange
 
 import db
 
@@ -62,17 +63,8 @@ class DetailedTimeForm(FlaskForm):
     submit = SubmitField('Add Time Entry')
 
 
-class BulkTimeEntry(FlaskForm):
-    date = DateField('Date', validators=[Optional()])
-    duration = StringField('Duration',
-                           render_kw={'placeholder': 'HH:MM'},
-                           validators=[Optional(), Regexp(r'\d{1,2}:\d{2}')])
-    desc = StringField('Description')
-
-
 class BulkTimeForm(FlaskForm):
     project_id = SelectField('Project', coerce=int)
-    entries = FieldList(FormField(BulkTimeEntry), min_entries=5)
     submit = SubmitField('Add All Entries')
 
 
