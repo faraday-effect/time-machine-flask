@@ -204,32 +204,16 @@ def fractional_hours_to_time(frac_hours):
     return pendulum.time(hour=int(fraction), minute=int(60 * fraction))
 
 
-def sequenced_field_name(name, seq):
-    return "{}-{}".format(name, seq)
-
-
 @app.route('/time-entry/bulk', methods=['GET', 'POST'])
 @login_required
 def enter_bulk_time():
-    time_entry_form = BulkTimeForm()
-    BULK_ENTRY_COUNT = 11
+    time_entry_form = BulkTimeForm(current_user.id)
 
-    # TODO: Refactor to eliminate redundancy with detailed time entry.
-    choices = account_project_choices(current_user.id)
-    if len(choices) < 1:
-        flash('You are not assigned to any projects')
-    time_entry_form.project_id.choices = choices
-
-    if time_entry_form.validate_on_submit():
-
-        entries = [{
-            'date': request.form[sequenced_field_name('date', idx)],
-            'duration': request.form[sequenced_field_name('duration', idx)],
-            'description': request.form[sequenced_field_name('description', idx)]
-        } for idx in range(BULK_ENTRY_COUNT)]
-
-        pprint(request.form)
-        pprint(entries)
+    if request.method == 'POST':
+        time_entry_form.fill_from_request(request.form)
+        pprint(time_entry_form.entries)
+        valid = time_entry_form.validate()
+        print("VALID", valid)
 
         # print({
         #     'project_id': time_entry_form.project_id.data,
@@ -241,7 +225,7 @@ def enter_bulk_time():
         #     'is_bulk_entry': True
         # })
 
-    return render_template('time/entry-bulk.html', form=time_entry_form, entry_count=BULK_ENTRY_COUNT)
+    return render_template('time/entry-bulk.html', form=time_entry_form)
 
 
 @app.route('/time-entry/detailed', methods=['GET', 'POST'])

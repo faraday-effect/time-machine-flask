@@ -1,14 +1,23 @@
 {% extends 'main.html' %}
-{% import "form_macros.html" as fm %}
 
 {% block title %}Bulk Time Entry{% endblock %}
 
 {% block content %}
     <h1 class="my-2">Enter Time</h1>
-    {{ fm.error_header(form) }}
     <form method="POST">
         {{ form.csrf_token }}
-        {{ fm.field(form, 'project_id') }}
+
+        {# Project selector #}
+        <div class="form-group">
+            <label for="project_id">Project</label>
+            <select class="form-control" id="project_id" name="project_id" value>
+                {% for choice in form.project_id.choices %}
+                    <option value="{{ choice.project_id }}">
+                        {{ choice.project_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
         {# Headings #}
         <div class="form-row">
@@ -18,24 +27,27 @@
         </div>
 
         {# Entries #}
-        {% for idx in range(entry_count) %}
+        {% for entry in form.entries %}
             <div class="form-row my-2">
                 <div class="col-3">
-                    <input class="form-control" id="date-{{ idx }}" name="date-{{ idx }}"
-                           type="date" value>
+                    <input type="date" class="form-control"
+                           id="date-{{ loop.index0 }}" name="date-{{ loop.index0 }}"
+                           value="{{ entry.date.data }}">
                 </div>
                 <div class="col-2">
-                    <input class="form-control" id="duration-{{ idx }}" name="duration-{{ idx }}"
+                    <input type="text" class="form-control"
+                           id="duration-{{ loop.index0 }}" name="duration-{{ loop.index0 }}"
                            {% if loop.first %}placeholder="e.g. 1.75"{% endif %}
-                           type="text" value>
+                           value="{{ entry.duration.data }}">
                 </div>
                 <div class="col-7">
-                    <input class="form-control" id="description-{{ idx }}" name="description-{{ idx }}"
-                           type="text" value>
+                    <input type="text" class="form-control"
+                           id="description-{{ loop.index0 }}" name="description-{{ loop.index0 }}"
+                           value="{{ entry.description.data }}">
                 </div>
             </div>
         {% endfor %}
 
-        {{ form.submit(class_="btn btn-primary") }}
+        <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Add Entries">
     </form>
 {% endblock %}

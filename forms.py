@@ -61,9 +61,63 @@ class DetailedTimeForm(FlaskForm):
     submit = SubmitField('Add Time Entry')
 
 
-class BulkTimeForm(FlaskForm):
-    project_id = SelectField('Project', coerce=int)
-    submit = SubmitField('Add Valid Entries')
+class BulkTimeEntry(object):
+    all_field_names = 'date', 'duration', 'description'
+
+    def __init__(self):
+        self.date = {'value': '', 'errors': []}
+        self.duration = {'value': '', 'errors': []}
+        self.description = {'value': '', 'errors': []}
+
+    def __repr__(self):
+        return "<BulkTimeEntry {} {} {}>".format(self.date, self.duration, self.description)
+
+    def all_field_values(self):
+        return (getattr(self, field)['value'] for field in self.all_field_names)
+
+    def is_empty(self):
+        return not any(self.all_field_values())
+
+    @staticmethod
+    def sequenced_field_name(name, seq):
+        return "{}-{}".format(name, seq)
+
+    def fill_from_request(self, request, idx):
+        print(request)
+        for field in self.all_field_names:
+            self.date['value'] = request[self.sequenced_field_name('date', idx)]
+            self.duration['value'] = request[self.sequenced_field_name('duration', idx)]
+            self.description['value'] = request[self.sequenced_field_name('description', idx)]
+
+    def validate(self):
+        if self.is_empty():
+            return True
+        else:
+            valid = True
+            for name in self.all_field_names:
+                if not getattr(self, name)['value']:
+                    getattr(self, name)['errors'].append('Must have a value')
+                    valid = False
+            return valid
+
+
+class BulkTimeForm(object):
+    def __init__(self, account_id, entry_count=5):
+        self.project_id = {
+            'choices': account_project_choices(account_id),
+            'value': '',
+            'errors': []
+        }
+        self.entries = [BulkTimeEntry() for idx in range(entry_count)]
+
+    def fill_from_request(self, request):
+        for idx, entry in enumerate(self.entries):
+            entry.fill_from_request(request, idx)
+
+    def validate(self):
+        for entry in self.entries:
+            entry.validate()
+
 
 
 def course_choices():
