@@ -1,0 +1,46 @@
+{% macro error_header(form) %}
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            Please correct the
+            {% if form.errors|length == 1 %}
+                error
+            {% else %}
+                errors
+            {% endif %}
+            in the form below.
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{# Generic field macro, used whether stacked or in-line #}
+{% macro _field(form, name) %}
+    {{ form[name].label }}
+    {% if form[name].errors %}
+        {{ form[name](class_="form-control is-invalid") }}
+    {% else %}
+        {{ form[name](class_="form-control") }}
+    {% endif %}
+    {% for error in form[name].errors %}
+        <div class="invalid-feedback">
+            {{ error }}
+        </div>
+    {% endfor %}
+{% endmacro %}
+
+{# Wrap generic field macro in stacked markup #}
+{% macro field(form, name) %}
+    <div class="form-row">
+        <div class="form-group col-4">
+            {{ _field(form, name) }}
+        </div>
+    </div>
+{% endmacro %}
+
+{# Wrap generic field as an in-line field; wrap several of these with `.form-row` #}
+{% macro field_inline(form, name) %}
+    <div class="col">
+        <div class="form-group">
+            {{ _field(form, name) }}
+        </div>
+    </div>
+{% endmacro %}

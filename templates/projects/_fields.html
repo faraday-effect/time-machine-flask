@@ -1,12 +1,3 @@
-<div class="form-row">
-    <div class="form-group col-6">
-        {{ form.name.label }}
-        {{ form.name(class_="form-control") }}
-    </div>
-</div>
-<div class="form-row">
-    <div class="form-group col-6">
-        {{ form.course_id.label }}
-        {{ form.course_id(class_="form-control") }}
-    </div>
-</div>
+{{ fm.field(form, 'name') }}
+{{ fm.field(form, 'course_id') }}
+

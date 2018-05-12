@@ -1,9 +1,11 @@
 {% extends 'main.html' %}
+{% import "form_macros.html" as fm %}
 
 {% block title %}Add a Course{% endblock %}
 
 {% block content %}
-    {% include "_form_errors.html" %}
+    <h1>Add a Course</h1>
+    {{ fm.error_header(form) }}
     <form method="POST">
         {{ form.csrf_token }}
         {% include "courses/_fields.html" %}

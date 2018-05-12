@@ -20,7 +20,6 @@ class User(UserMixin):
             'email': email,
             'password_hash': generate_password_hash(password)
         })
-        print(new_account)
         if new_account is not None:
             self = cls()
             self.first_name = new_account['first_name']

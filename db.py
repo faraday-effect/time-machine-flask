@@ -121,11 +121,11 @@ def read_projects_by_account_id(account_id):
         SELECT
           project.id   AS project_id,
           project.name AS project_name,
-          role.name as role_name
+          role.name AS role_name
         FROM project
           INNER JOIN team ON project.id = team.project_id
           INNER JOIN account_team ON team.id = account_team.team_id
-          INNER JOIN role on account_team.role_id = role.id
+          INNER JOIN role ON account_team.role_id = role.id
         WHERE
           account_team.account_id= %(account_id)s
     """

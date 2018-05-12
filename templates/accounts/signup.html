@@ -1,48 +1,19 @@
 {% extends "main.html" %}
+{% import "form_macros.html" as fm %}
 
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
     <h1>Sign Up for an Account</h1>
-    {% include "_form_errors.html" %}
+    {{ fm.error_header(form) }}
     <form method="POST">
         {{ form.csrf_token }}
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.email.label }}
-                {{ form.email(class_="form-control") }}
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.first_name.label }}
-                {{ form.first_name(class_="form-control") }}
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.last_name.label }}
-                {{ form.last_name(class_="form-control") }}
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.team_id.label }}
-                {{ form.team_id(class_="form-control") }}
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.password.label }}
-                {{ form.password(class_="form-control") }}
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.password_repeat.label }}
-                {{ form.password_repeat(class_="form-control") }}
-            </div>
-        </div>
+        {{ fm.field(form, 'email') }}
+        {{ fm.field(form, 'first_name') }}
+        {{ fm.field(form, 'last_name') }}
+        {{ fm.field(form, 'team_id') }}
+        {{ fm.field(form, 'password') }}
+        {{ fm.field(form, 'password_repeat') }}
         {{ form.submit(class_="btn btn-primary") }}
     </form>
 {% endblock %}

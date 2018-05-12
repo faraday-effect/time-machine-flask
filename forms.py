@@ -20,8 +20,8 @@ class CourseForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[Email()])
-    password = PasswordField('Password')
+    email = StringField('Email', validators=[Email(), InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
     next = HiddenField('Next')
     submit = SubmitField('Sign In')
 
@@ -51,21 +51,19 @@ class TeamForm(FlaskForm):
     submit = SubmitField()
 
 
-# I wanted to call the `desc` field `description`, but that appears to cause problems with the `FieldList`
-# because `description` is a named parameter of the underlying `Field` constructor.
 class DetailedTimeForm(FlaskForm):
     project_id = SelectField('Project', coerce=int)
     start_date = DateField('Start Date')
     start_time = TimeField('Start Time')
     stop_date = DateField('Stop Date')
     stop_time = TimeField('Stop Time')
-    desc = StringField('Description')
+    description = StringField('Description')
     submit = SubmitField('Add Time Entry')
 
 
 class BulkTimeForm(FlaskForm):
     project_id = SelectField('Project', coerce=int)
-    submit = SubmitField('Add All Entries')
+    submit = SubmitField('Add Valid Entries')
 
 
 def course_choices():
@@ -74,7 +72,12 @@ def course_choices():
             for row in db.read_all_courses()]
 
 
-def project_choices(account_id):
+def all_project_choices():
+    return [(row['project_id'], row['project_name'])
+            for row in db.read_all_projects()]
+
+
+def account_project_choices(account_id):
     return [(row['project_id'],
              "{} ({})".format(row['project_name'], row['role_name']))
             for row in db.read_projects_by_account_id(account_id)]

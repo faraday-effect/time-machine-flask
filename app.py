@@ -14,7 +14,7 @@ pendulum.set_formatter('alternative')
 
 from user import User
 from forms import LoginForm, SignupForm, DetailedTimeForm, CourseForm, ProjectForm, course_choices, TeamForm, \
-    project_choices, team_choices, BulkTimeForm
+    account_project_choices, team_choices, BulkTimeForm, all_project_choices
 
 import db
 
@@ -30,6 +30,7 @@ login_manager.login_view = 'login'
 
 app.debug = True
 toolbar = DebugToolbarExtension(app)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 
 @app.before_request
@@ -90,6 +91,7 @@ def is_safe_url(target):
 
 @app.route('/accounts/login', methods=['GET', 'POST'])
 def login():
+    login_failed = 'Login failed'  # Only one failure message.
     login_form = LoginForm()
     if login_form.validate_on_submit():
         user = User.read(login_form.email.data)
@@ -102,7 +104,9 @@ def login():
                     return abort(400)
                 return redirect(next or url_for('index'))
             else:
-                flash('Login failed')
+                flash(login_failed)
+        else:
+            flash(login_failed)
     return render_template('accounts/login.html', form=login_form)
 
 
@@ -211,7 +215,7 @@ def enter_bulk_time():
     BULK_ENTRY_COUNT = 11
 
     # TODO: Refactor to eliminate redundancy with detailed time entry.
-    choices = project_choices(current_user.id)
+    choices = account_project_choices(current_user.id)
     if len(choices) < 1:
         flash('You are not assigned to any projects')
     time_entry_form.project_id.choices = choices
@@ -245,7 +249,7 @@ def enter_bulk_time():
 def enter_detailed_time():
     time_entry_form = DetailedTimeForm()
 
-    choices = project_choices(current_user.id)
+    choices = account_project_choices(current_user.id)
     if len(choices) < 1:
         flash('You are not assigned to any projects')
     time_entry_form.project_id.choices = choices
@@ -256,7 +260,7 @@ def enter_detailed_time():
             'user_id': current_user.id,
             'start_date': time_entry_form.start_date.data, 'start_time': time_entry_form.start_time.data,
             'stop_date': time_entry_form.stop_date.data, 'stop_time': time_entry_form.stop_time.data,
-            'description': time_entry_form.desc.data,
+            'description': time_entry_form.description.data,
             'is_bulk_entry': False
         })
         if rowcount == 1:
@@ -348,7 +352,7 @@ def team_details(team_id):
 def create_team():
     team_form = TeamForm()
     team_form.course_id.choices = course_choices()
-    team_form.project_id.choices = project_choices()
+    team_form.project_id.choices = all_project_choices()
 
     if team_form.validate_on_submit():
         rowcount = db.create_team({'name': team_form.name.data,

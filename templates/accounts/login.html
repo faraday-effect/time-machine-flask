@@ -1,34 +1,20 @@
 {% extends "main.html" %}
+{% import "form_macros.html" as fm %}
 
 {% block title %}Log In{% endblock %}
 
 {% block content %}
     <h1>Log In to Time Machine</h1>
-    {% include "_form_errors.html" %}
     <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.email.label }}
-                {{ form.email(class_="form-control") }}
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.password.label }}
-                {{ form.password(class_="form-control") }}
-            </div>
-        </div>
+        {{ form.csrf_token }}
+        {{ fm.field(form, 'email') }}
+        {{ fm.field(form, 'password') }}
         {{ form.submit(class_="btn btn-primary") }}
     </form>
     <div class="row col-6 mt-4 mb-4">
-        <div class="col">
-            <hr>
-        </div>
+        <div class="col"><hr></div>
         <div class="col-auto">OR</div>
-        <div class="col">
-            <hr>
-        </div>
+        <div class="col"><hr></div>
     </div>
     <a class="btn btn-outline-primary" href="{{ url_for('signup') }}">Create an Account</a>
 {% endblock %}

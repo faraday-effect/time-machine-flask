@@ -1,54 +1,25 @@
 {% extends 'main.html' %}
+{% import "form_macros.html" as fm %}
 
 {% block title %}Detailed Time Entry{% endblock %}
 
 {% block content %}
     <h1 class="my-2">Enter Time</h1>
-    {% include "_form_errors.html" %}
+    {{ fm.error_header(form) }}
     <form method="POST">
         {{ form.csrf_token }}
+        {{ fm.field(form, 'project_id') }}
         <div class="form-row">
-            <div class="form-group col-4">
-                {{ form.project_id.label }}
-                {{ form.project_id(class_="form-control") }}
+            {{ fm.field_inline(form, 'start_date') }}
+            {{ fm.field_inline(form, 'start_time') }}
+            {{ fm.field_inline(form, 'stop_date') }}
+            {{ fm.field_inline(form, 'stop_time') }}
+            <div class="form-group">
+                <label>Duration</label>
+                <div id="duration" class="h5 py-2">0 m</div>
             </div>
         </div>
-        <div class="form-row">
-            <div class="col">
-                <div class="form-group">
-                    {{ form.start_date.label }}
-                    {{ form.start_date(class_="form-control start-stop") }}
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-group">
-                    {{ form.start_time.label }}
-                    {{ form.start_time(class_="form-control start-stop") }}
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-group">
-                    {{ form.stop_date.label }}
-                    {{ form.stop_date(class_="form-control start-stop") }}
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-group">
-                    {{ form.stop_time.label }}
-                    {{ form.stop_time(class_="form-control start-stop") }}
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-group">
-                    <label>Duration</label>
-                    <div id="duration" class="h5 py-2">0 m</div>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            {{ form.description.label }}
-            {{ form.description(class_="form-control") }}
-        </div>
+        {{ fm.field(form, 'description') }}
         {{ form.submit(class_="btn btn-primary", disabled=True) }}
     </form>
 {% endblock %}
@@ -104,7 +75,7 @@
             $('#submit').prop('disabled', time_difference <= 0 || description_length <= 0);
         }
 
-        $('.start-stop').change(function () {
+        $('#start_date,#stop_date,#start_time,#stop_time').change(function () {
             update_controls();
         });
 
