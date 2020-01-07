@@ -10,7 +10,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 import pendulum
 from wtforms import ValidationError
 
-pendulum.set_formatter('alternative')
+# pendulum.set_formatter('alternative')
 
 from user import User
 from forms import LoginForm, SignupForm, DetailedTimeForm, CourseForm, ProjectForm, course_choices, TeamForm, \
